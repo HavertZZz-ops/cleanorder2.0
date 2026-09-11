@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanOrder - Painel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans text-slate-700 antialiased min-h-screen flex">
+
+   
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+           
+            <div class="p-6 flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-sparkles text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-blue-900">CleanOrder</span>
+            </div>
+
+            
+            <nav class="px-4 space-y-1">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 font-medium rounded-xl">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
+                    <i class="fa-regular fa-square-check"></i>
+                    <span>Tarefas</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>Progresso</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Suporte</span>
+                </a>
+                <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+   
+    <div class="flex-1 flex flex-col">
+
+       
+        <header class="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-8">
+            <span class="text-sm text-slate-500">Data Atual: {% now "d/m/Y" %} </span>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative text-slate-400 hover:text-slate-600">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                </button>
+                <div class="flex items-center space-x-3 pl-4 border-l border-slate-200">
+                    <div class="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">
+                        US
+                    </div>
+                    <div class="text-sm">
+                        <p class="font-bold text-slate-800 leading-none">{{ estudante.nome|default:request.user.username }}</p>
+                        <p class="text-xs text-slate-400 leading-none mt-1">{{ estudante.bloco|default:request.user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        
+        <main class="p-8 max-w-6xl space-y-6">
+
+           
+            {% if messages %}
+                <div class="space-y-3">
+                    {% for message in messages %}
+                        <div class="flex items-center justify-between p-4 rounded-xl border {% if message.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} shadow-sm transition">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check text-emerald-500{% else %}fa-circle-info text-blue-500{% endif %} text-lg"></i>
+                                <span class="text-sm font-medium">{{ message }}</span>
+                            </div>
+                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-sm">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Olá, {{ estudante.nome|default:request.user.username }}! 👋</h1>
+                <p class="text-slate-500 text-sm mt-1">Aqui está o status das limpezas e organizações dos alojamentos.</p>
+            </div>
+
+          
+            <div class="space-y-4">
+                {% for tarefa in tarefas %}
+                   
+                    <div class="p-6 rounded-2xl border transition {% if tarefa.status == 'Concluída' %}bg-emerald-50/50 border-emerald-200{% else %}bg-white border-slate-100 shadow-sm{% endif %} space-y-4">
+                        
+                        <div class="flex items-center justify-between">
+                            {% if tarefa.status == 'Concluída' %}
+                                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-md">
+                                    <i class="fa-solid fa-check mr-1"></i> Concluída
+                                </span>
+                            {% else %}
+                                <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-md">
+                                    <i class="fa-regular fa-square-check mr-1"></i> Pendente
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        
+                        <h2 class="text-lg font-bold {% if tarefa.status == 'Concluída' %}line-through text-slate-400{% else %}text-slate-900{% endif %}">
+                            {{ tarefa.titulo }}
+                        </h2>
+
+                        
+                        {% if tarefa.descricao %}
+                            <p class="text-sm {% if tarefa.status == 'Concluída' %}line-through text-slate-400{% else %}text-slate-600{% endif %}">
+                                {{ tarefa.descricao }}
+                            </p>
+                        {% endif %}
+
+                        <div class="flex items-center justify-between pt-4 border-t {% if tarefa.status == 'Concluída' %}border-emerald-100{% else %}border-slate-50{% endif %}">
+                            <span class="text-xs text-slate-400 flex items-center">
+                                <i class="fa-regular fa-clock mr-1.5"></i> Prazo: {{ tarefa.data_prazo|date:"d/m/Y" }}
+                            </span>
+                            
+                           
+                        {% if tarefa.status == 'Concluída' %}
+                      
+                            <a href="{% url 'concluir_tarefa' tarefa.id %}" class="text-emerald-700 bg-emerald-100 text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Concluída</span>
+                            </a>
+                        {% else %}
+    
+                            <a href="{% url 'concluir_tarefa' tarefa.id %}" class="text-emerald-700 bg-green-300 text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Marcar como Concluída</span>
+                            </a>
+                        {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center text-slate-400">
+                        Nenhuma tarefa encontrada.
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+              
+                <div class="bg-blue-600 text-white p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center space-x-2 text-blue-100 text-sm font-semibold">
+                            <i class="fa-solid fa-fire"></i>
+                            <span>Métrica Principal</span>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-5xl font-black">04</span>
+                            <p class="text-sm font-medium text-blue-100 mt-1">unidades / período</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-2 text-center mt-6">
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Seg</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Ter</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Qua</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Qui</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Sex</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-blue-500 text-blue-200 flex items-center justify-center text-xs font-bold">-</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Sáb</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-blue-500 text-blue-200 flex items-center justify-center text-xs font-bold">-</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-semibold text-blue-200">Dom</span>
+                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-blue-500 text-blue-200 flex items-center justify-center text-xs font-bold">-</div>
+                        </div>
+                    </div>
+                </div>
+
+              
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                    <h3 class="font-bold text-slate-900 mb-4">Resumo do Período</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                                <span>Item Métrica 1</span>
+                                <span class="text-slate-800">0 / 0</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full w-[75%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                                <span>Item Métrica 2</span>
+                                <span class="text-slate-800">0 / 0</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-600 h-full w-[100%]"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                                <span>Item Métrica 3</span>
+                                <span class="text-slate-800">000 pts</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full w-[50%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-2">
+                    <h3 class="font-bold text-slate-900 mb-4 text-lg">Acesso rápido</h3>
+    
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#" class="flex items-center justify-between space-x-2 px-5 py-3 bg-blue-50 text-blue-600 font-semibold rounded-xl text-sm border border-transparent hover:bg-blue-100 transition">
+                            <span>Reportar problema</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </a>
+
+                        <a href="#" class="flex items-center justify-between space-x-2 px-5 py-3 bg-emerald-50 text-emerald-600 font-semibold rounded-xl text-sm border border-transparent hover:bg-emerald-100 transition">
+                            <span>Ver histórico</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </a>
+
+                        <a href="#" class="flex items-center justify-between space-x-2 px-5 py-3 bg-slate-50 text-slate-600 font-semibold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition">
+                            <span>Regulamento</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanOrder - Painel de Vistorias</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 font-sans text-slate-700 antialiased min-h-screen flex">
+
+    <!-- Sidebar Lateral -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="p-6 flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-sparkles text-lg"></i>
+                </div>
+                <span class="text-xl font-bold text-blue-900">CleanOrder</span>
+            </div>
+
+            <!-- Perfil / Menu Sidebar -->
+            <div class="px-4 mt-2">
+                <div class="px-4 py-3 bg-blue-50/70 rounded-xl">
+                    <span class="text-[10px] font-bold tracking-wider text-blue-600 uppercase block mb-0.5">Perfil</span>
+                    <span class="text-sm font-semibold text-slate-800">Monitor</span>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
+                <span>Logout</span>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex-1 flex flex-col min-w-0">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+            <h1 class="text-base font-bold text-slate-800">Painel de Vistorias</h1>
+            
+            <div class="flex items-center space-x-4">
+                <button class="relative text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-regular fa-bell text-lg"></i>
+                </button>
+                <div class="w-9 h-9 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                    MO
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+<main class="flex-1 p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-y-auto">
+    
+    <!-- Coluna Esquerda: Lista de Quartos Dynamic -->
+    <section class="lg:col-span-4 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="font-bold text-slate-900 text-base">Quartos ({{ estudantes|length }})</h2>
+            <span class="text-xs text-slate-400 font-medium">{{ pendentes }} pendente{{ pendentes|pluralize }}</span>
+        </div>
+
+        <div class="space-y-3">
+            {% for item in estudantes %}
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 hover:border-slate-200 flex items-center justify-between cursor-pointer shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">{{ item.quarto|default:item.pk }}</h3>                        <p class="text-xs text-slate-400 mt-0.5">{{ item.andar|default:"1" }}º andar · {{ item.moradores_count|default:"1" }} morador(es)</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {% if item.status == 'Aprovado' %}
+                            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[11px] font-semibold rounded-full">Aprovado</span>
+                        {% elif item.status == 'Reprovado' %}
+                            <span class="px-2.5 py-1 bg-rose-50 text-rose-600 text-[11px] font-semibold rounded-full">Reprovado</span>
+                        {% else %}
+                            <span class="px-2.5 py-1 bg-amber-50 text-amber-600 text-[11px] font-semibold rounded-full">Pendente</span>
+                        {% endif %}
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-xs text-slate-400">Nenhum quarto cadastrado.</p>
+            {% endfor %}
+        </div>
+        </section>
+    <!-- Coluna Direita: Detalhes do Quarto Selecionado -->
+    <section class="lg:col-span-8 bg-slate-50/60 p-6 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+        <form class="space-y-6" onsubmit="event.preventDefault();">
+
+            <!-- Cabecalho do Quarto -->
+            <div>
+                {% with primeiro=estudantes.first %}
+                    <h2 class="text-xl font-bold text-blue-900">{{ primeiro.quarto|default:primeiro.pk }}</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ primeiro.andar|default:"1" }}º andar</p>
+
+                    <!-- Alojados/Moradores -->
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <span class="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 shadow-sm">
+                            <i class="fa-regular fa-user text-slate-400 mr-2 text-[11px]"></i>
+                            {{ primeiro.user.get_full_name|default:primeiro.user.username }}
+                        </span>
+                    </div>
+                {% endwith %}
+            </div>
+
+            <!-- Criterios de Avaliação -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold tracking-wider text-slate-500 uppercase">Critérios de Avaliação</h3>
+
+                <label class="flex items-center p-4 bg-slate-100/70 border border-slate-200/60 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 mr-4">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800 leading-tight">Chão limpo</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Varrido e lavado</p>
+                    </div>
+                </label>
+
+                <label class="flex items-center p-4 bg-slate-100/70 border border-slate-200/60 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 mr-4">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800 leading-tight">Lixo retirado</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Lixeira vazia</p>
+                    </div>
+                </label>
+
+                <label class="flex items-center p-4 bg-slate-100/70 border border-slate-200/60 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 mr-4">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800 leading-tight">Camas organizadas</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Arrumadas e sem roupa no chão</p>
+                    </div>
+                </label>
+
+                <label class="flex items-center p-4 bg-slate-100/70 border border-slate-200/60 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 mr-4">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800 leading-tight">Banheiro limpo</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Pia, vaso e chuveiro</p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Observações -->
+            <div class="space-y-1.5">
+                <label for="observacoes" class="text-sm font-bold text-slate-800">Observações</label>
+                <textarea id="observacoes" rows="3" placeholder="Descreva detalhes relevantes sobre o quarto..." class="w-full p-3.5 bg-slate-100/70 border border-slate-200/80 rounded-xl text-xs text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"></textarea>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="grid grid-cols-2 gap-4 pt-2">
+                <button type="button" class="w-full py-2.5 px-4 bg-white border border-rose-500 text-rose-500 hover:bg-rose-50 font-semibold text-sm rounded-xl transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>Reprovar</span>
+                </button>
+                <button type="button" class="w-full py-2.5 px-4 bg-slate-200 text-slate-400 hover:bg-emerald-600 hover:text-white font-semibold text-sm rounded-xl transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Aprovar</span>
+                </button>
+            </div>
+        </form>
+    </section>
+
+</main>
+    </div>
+
+</body>
+</html>
