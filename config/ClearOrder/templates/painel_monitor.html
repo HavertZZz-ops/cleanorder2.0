@@ -56,7 +56,9 @@
     <section class="lg:col-span-4 space-y-4">
         <div class="flex items-center justify-between">
             <h2 class="font-bold text-slate-900 text-base">Quartos ({{ estudantes|length }})</h2>
-            <span class="text-xs text-slate-400 font-medium">{{ pendentes }} pendente{{ pendentes|pluralize }}</span>
+            <span class="text-xs text-slate-400 font-medium">
+                {{ total_pendentes|default:estudantes|length }} pendentes
+            </span>
         </div>
 
         <div class="space-y-3">
