@@ -1,0 +1,19 @@
+{% comment %}
+    Anti-FOUC — vai ANTES do <script src="...tailwindcss.com">.
+
+    A classe 'dark' precisa existir no <html> antes do Tailwind decidir quais
+    utilitários dark: emitir. Se este script vier DEPOIS do CDN, a página pode
+    nascer clara e só escurecer depois (piscar).
+
+    Compartilhado por base.html e painel_monitor.html (que é standalone).
+{% endcomment %}
+<script>
+    (function () {
+        try {
+            var salvo = localStorage.getItem('cleanorder-theme');
+            var escuro = salvo === 'dark' ||
+                (salvo === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (escuro) { document.documentElement.classList.add('dark'); }
+        } catch (e) { /* localStorage bloqueado: segue no tema claro */ }
+    })();
+</script>

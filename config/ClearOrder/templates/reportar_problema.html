@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}CleanOrder - Reportar Problema{% endblock %}
+
+{% block header_title %}Reportar{% endblock %}
+
+{% block content %}
+
+        <main class="flex-1 p-8 overflow-y-auto flex justify-center items-start">
+            
+            <div class="w-full max-w-2xl bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mt-4">
+                
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-emerald-950">Reportar Problema</h2>
+                    <p class="text-sm text-slate-500 mt-1">Descreva o problema de infraestrutura encontrado no seu quarto ou bloco.</p>
+                </div>
+
+                <!-- enctype multipart é obrigatório para request.FILES receber o arquivo -->
+                <form action="{% url 'enviar_relatorio' %}" method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+
+                    <div class="space-y-2">
+                        <label for="titulo" class="text-sm font-bold text-slate-800">Título do Problema</label>
+                        <input type="text" id="titulo" name="titulo" placeholder="Ex: Lâmpada queimada, Chuveiro frio..." class="w-full p-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition" required>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="categoria" class="text-sm font-bold text-slate-800">Categoria</label>
+                        <select id="categoria" name="categoria" class="w-full p-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition appearance-none" required>
+                            <option value="" disabled selected>Selecione o tipo de problema...</option>
+                            <option value="eletrica">Elétrica (Lâmpadas, tomadas, chuveiro)</option>
+                            <option value="hidraulica">Hidráulica (Vazamentos, torneiras, vaso)</option>
+                            <option value="mobiliario">Mobiliário (Camas, armários, portas)</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="descricao" class="text-sm font-bold text-slate-800">Descrição Detalhada</label>
+                        <textarea id="descricao" name="descricao" rows="5" placeholder="Explique exatamente onde está o problema e o que aconteceu..." class="w-full p-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition resize-none" required></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="imagem" class="text-sm font-bold text-slate-800">
+                            Foto do Problema
+                            <span class="font-normal text-slate-400">(opcional)</span>
+                        </label>
+
+                        <label for="imagem" id="area-imagem"
+                            class="block p-5 border-2 border-dashed border-slate-200 bg-slate-100/70 rounded-2xl cursor-pointer hover:border-emerald-600 hover:bg-emerald-50/40 transition text-center">
+                            <i class="fa-solid fa-camera text-2xl text-emerald-700"></i>
+                            <p class="text-sm font-semibold text-slate-700 mt-2">Clique para anexar uma foto</p>
+                            <p class="text-xs text-slate-400 mt-1">Ajuda o monitor a entender o problema · JPG, PNG ou WEBP · até 5 MB</p>
+                            <input type="file" name="imagem" id="imagem" accept="image/*" class="sr-only" onchange="previsualizarImagem(this)">
+                        </label>
+
+                        <div id="preview-imagem" class="hidden mt-3">
+                            <div class="relative w-fit">
+                                <img id="preview-img" src="" alt="Pré-visualização da foto"
+                                    class="max-h-36 object-cover rounded-xl border border-slate-200 shadow-sm">
+                                <button type="button" onclick="limparImagem()"
+                                    class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-rose-600 flex items-center justify-center shadow-sm"
+                                    aria-label="Remover foto">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-200/70 flex justify-end space-x-3">
+                        <a href="{% url 'painel_estudante' %}" class="py-3 px-6 bg-white border border-slate-300 text-slate-600 hover:bg-slate-100/70 font-semibold text-sm rounded-2xl transition">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="py-3 px-6 bg-[#00e6a5] text-teal-950 font-semibold shadow-sm rounded-2xl hover:bg-[#00d298] flex items-center space-x-2 active:scale-[0.97] transition-all duration-150">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Enviar Relatório</span>
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function previsualizarImagem(input) {
+            if (!input || !input.files || !input.files[0]) { return; }
+            document.getElementById('preview-img').src = URL.createObjectURL(input.files[0]);
+            document.getElementById('preview-imagem').classList.remove('hidden');
+        }
+
+        function limparImagem() {
+            document.getElementById('imagem').value = '';
+            document.getElementById('preview-imagem').classList.add('hidden');
+            document.getElementById('preview-img').src = '';
+        }
+    </script>
+{% endblock content %}

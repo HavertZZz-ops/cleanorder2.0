@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}CleanOrder - Chamados{% endblock %}
+
+{% block header_title %}Chamados de Infraestrutura{% endblock %}
+
+{% block content %}
+
+        <main class="p-8 max-w-5xl space-y-6">
+
+            <!-- Resumo -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-3xl border border-slate-200/70 shadow-sm dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total</p>
+                    <p class="text-3xl font-black text-emerald-950 mt-1">{{ chamados|length }}</p>
+                    <p class="text-xs text-slate-400 mt-1">
+                        {% if eh_monitor %}Chamados de todos os quartos{% else %}Seus chamados{% endif %}
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-slate-200/70 shadow-sm dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Em aberto</p>
+                    <p class="text-3xl font-black text-emerald-950 mt-1">{{ total_abertos }}</p>
+                    <p class="text-xs text-slate-400 mt-1">Aguardando verificação</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-slate-200/70 shadow-sm dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Verificados</p>
+                    <p class="text-3xl font-black text-emerald-950 mt-1">{{ total_verificados }}</p>
+                    <p class="text-xs text-slate-400 mt-1">Visitados pela manutenção</p>
+                </div>
+            </div>
+
+            <!-- Formulário de novo chamado (só estudante) -->
+            {% if not eh_monitor %}
+                <section class="bg-white p-6 rounded-3xl border border-slate-200/70 shadow-sm dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <div class="mb-5">
+                        <h2 class="text-lg font-bold text-emerald-950">Abrir novo chamado</h2>
+                        <p class="text-sm text-slate-500 mt-1 dark:text-slate-400">Descreva o problema de infraestrutura encontrado no seu quarto.</p>
+                    </div>
+
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="titulo" class="text-sm font-bold text-slate-800">Título do Problema</label>
+                                <input type="text" id="titulo" name="titulo" placeholder="Ex: Lâmpada queimada, Chuveiro frio..." class="w-full p-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="categoria" class="text-sm font-bold text-slate-800">Categoria</label>
+                                <select id="categoria" name="categoria" class="w-full p-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition appearance-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400" required>
+                                    <option value="" disabled selected>Selecione o tipo de problema...</option>
+                                    <option value="eletrica">Elétrica (Lâmpadas, tomadas, chuveiro)</option>
+                                    <option value="hidraulica">Hidráulica (Vazamentos, torneiras, vaso)</option>
+                                    <option value="mobiliario">Mobiliário (Camas, armários, portas)</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="descricao" class="text-sm font-bold text-slate-800">Descrição Detalhada</label>
+                            <textarea id="descricao" name="descricao" rows="4" placeholder="Explique exatamente onde está o problema e o que aconteceu..." class="w-full p-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition resize-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400" required></textarea>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200/70 flex justify-end">
+                            <button type="submit" class="py-3 px-6 bg-[#00e6a5] text-teal-950 font-semibold shadow-sm rounded-2xl hover:bg-[#00d298] flex items-center space-x-2 active:scale-[0.97] transition-all duration-150">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Enviar Chamado</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            {% endif %}
+
+            <!-- Histórico -->
+            <section class="bg-white p-6 rounded-3xl border border-slate-200/70 shadow-sm dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-lg font-bold text-emerald-950">
+                            {% if eh_monitor %}Chamados de todos os quartos{% else %}Histórico dos seus chamados{% endif %}
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1 dark:text-slate-400">
+                            {% if eh_monitor %}Marque como verificado após visitar o dano.{% else %}Acompanhe o andamento de cada solicitação.{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                {% comment %}
+                    Grade responsiva: os cards são IRMÃOS diretos deste
+                    container. O </div> do card fecha logo antes do {% empty %} —
+                    sem ele, o card da iteração seguinte abria DENTRO do
+                    anterior (efeito boneca russa).
+                {% endcomment %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                    {% for chamado in chamados %}
+                        <div class="p-4 rounded-2xl border flex flex-col h-full items-stretch justify-between gap-4 {% if chamado.status == 'Verificado' %}bg-emerald-50/50 border-emerald-200{% else %}bg-white border-slate-200/70 dark:bg-slate-900 dark:border-slate-800{% endif %}">
+                            <div class="min-w-0 flex items-start gap-4">
+                                {% if chamado.imagem %}
+                                    <button type="button" onclick="ampliarImagem('{{ chamado.imagem.url }}')"
+                                        class="shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-slate-200 cursor-zoom-in hover:ring-2 hover:ring-emerald-600 transition"
+                                        aria-label="Ampliar foto do chamado">
+                                        <img src="{{ chamado.imagem.url }}" alt="Foto do chamado {{ chamado.titulo }}"
+                                            class="w-full h-full object-cover">
+                                    </button>
+                                {% endif %}
+
+                                <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-bold text-emerald-950 text-sm">{{ chamado.titulo }}</h3>
+
+                                    {% if chamado.status == 'Verificado' %}
+                                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full px-2 py-1 font-medium text-[11px] font-semibold rounded-full">Verificado</span>
+                                    {% else %}
+                                        <span class="px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-300 rounded-full px-2 py-1 font-medium text-[11px] font-semibold rounded-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">{{ chamado.status }}</span>
+                                    {% endif %}
+
+                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded-full uppercase">{{ chamado.categoria }}</span>
+                                </div>
+
+                                <p class="text-xs text-slate-500 mt-1 dark:text-slate-400">{{ chamado.descricao }}</p>
+
+                                <p class="text-[11px] text-slate-400 mt-1">
+                                    {% if eh_monitor %}
+                                        <i class="fa-solid fa-location-dot mr-1" title="Quarto do estudante que abriu o chamado"></i>{{ chamado.estudante.quarto|default:"sem quarto" }}
+                                        <span class="mx-1">·</span>
+                                    {% endif %}
+                                    <i class="fa-regular fa-clock mr-1" title="Data em que o chamado foi aberto"></i>{{ chamado.data_abertura|date:"d/m/Y" }}
+                                </p>
+
+                                {% comment %}
+                                    Timeline de status. O modelo tem apenas
+                                    'Em Aberto' e 'Verificado' - as etapas
+                                    'Em Analise' e 'Concluido' do pedido nao
+                                    existem no schema, entao nao sao inventadas aqui.
+                                {% endcomment %}
+                                <div class="flex items-center gap-2 mt-2">
+                                    {% if chamado.status == 'Verificado' %}
+                                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-600 ring-4 ring-emerald-600/15"></span>
+                                            Em Aberto
+                                        </span>
+                                        <span class="h-px flex-1 bg-emerald-400/50 max-w-16"></span>
+                                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800">
+                                            <span class="w-2 h-2 rounded-full bg-[#00e6a5] ring-4 ring-[#00e6a5]/25"></span>
+                                            Verificado
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700">
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse ring-4 ring-amber-500/15"></span>
+                                            Em Aberto
+                                        </span>
+                                        <span class="h-px flex-1 bg-slate-200 dark:bg-slate-700 max-w-16"></span>
+                                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+                                            <span class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                                            Verificado
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if chamado.status == 'Verificado' %}
+                                <span class="shrink-0 text-emerald-700 font-semibold text-xs flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-solid fa-check-double"></i> Verificado
+                                </span>
+                            {% elif eh_monitor %}
+                                <form action="{% url 'verificar_reparo' chamado.id %}" method="POST" class="shrink-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-3 py-2 bg-[#00e6a5] text-teal-950 text-xs font-bold rounded-full hover:bg-emerald-700 whitespace-nowrap active:scale-[0.97] transition-all duration-150">
+                                        <i class="fa-solid fa-check-double mr-1"></i> Marcar como Verificado
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        </div>
+                    {% empty %}                        {% include '_empty_state.html' with mensagem='Nenhum chamado registrado ainda' sub='Tudo em ordem por aqui!' %}
+                    {% endfor %}
+                </div>
+            </section>
+
+        </main>
+
+        {% include '_modal_zoom_imagem.html' %}
+{% endblock content %}

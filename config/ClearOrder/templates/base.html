@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CleanOrder{% endblock %}</title>
+
+    {% comment %} Anti-FOUC tem que vir ANTES do CDN do Tailwind. {% endcomment %}
+    {% include '_tema_antifouc.html' %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% comment %} darkMode:'class' + aplicarTema() + tipografia. Compartilhado com painel_monitor.html. {% endcomment %}
+    {% include '_tema_body.html' %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {% include '_estilo_global.html' %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full bg-slate-100/70 dark:bg-slate-900 font-sans text-slate-700 dark:text-slate-200 antialiased min-h-screen flex transition-colors duration-200">
+
+    <!--Sidebar -->
+    {% include '_sidebar.html' %}
+
+    <div class="flex-1 flex flex-col min-w-0">
+        
+        <!--(Navbar Superior) -->
+        <header class="h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-8 shrink-0 sticky top-0 z-20">
+            <h1 class="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
+                {% block header_title %}Painel{% endblock %}
+            </h1>
+
+            <div class="flex items-center space-x-5">
+                {% include '_data_atual.html' %}
+
+                {% comment %}
+                    Sino + notificações REAIS (context processor).
+                    Badge mostra a contagem de não lidas e some quando é 0.
+                {% endcomment %}
+                <div class="relative">
+                    <button type="button" onclick="toggleNotificacoes(event)"
+                        aria-label="Notificações" aria-expanded="false"
+                        class="relative text-slate-400 hover:text-emerald-700 transition">
+                        <i class="fa-regular fa-bell text-xl"></i>
+
+                        {% if qtd_notificacoes %}
+                            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#00e6a5] text-teal-950 text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center animate-pulse">{{ qtd_notificacoes }}</span>
+                        {% endif %}
+                    </button>
+
+                    <div id="dropdown-notificacoes"
+                        class="absolute right-0 mt-3 w-80 bg-white rounded-3xl border border-slate-200/70 shadow-xl z-50 hidden hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+
+                        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/70">
+                            <span class="text-sm font-bold text-slate-800">Notificações</span>
+                            {% if qtd_notificacoes %}
+                                <span class="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider">{{ qtd_notificacoes }} nova{{ qtd_notificacoes|pluralize:'s' }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="p-2 space-y-1 max-h-80 overflow-y-auto">
+                            {% for notificacao in notificacoes_recentes %}
+                                <form action="{% url 'marcar_notificacao_lida' notificacao.id %}" method="POST" class="{% if notificacao.lida %}opacity-60{% endif %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full flex items-start gap-3 p-3 rounded-2xl text-left {% if notificacao.lida %}hover:bg-slate-100/70{% else %}bg-emerald-50/50 hover:bg-emerald-50{% endif %} transition">
+                                        <span class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center
+                                                     {% if 'aprovada' in notificacao.titulo|lower %}bg-emerald-100 text-emerald-700
+                                                     {% elif 'reprovada' in notificacao.titulo|lower %}bg-rose-100 text-rose-600
+                                                     {% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                                            {% if 'aprovada' in notificacao.titulo|lower %}
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            {% elif 'reprovada' in notificacao.titulo|lower %}
+                                                <i class="fa-solid fa-circle-xmark"></i>
+                                            {% else %}
+                                                <i class="fa-solid fa-screwdriver-wrench"></i>
+                                            {% endif %}
+                                        </span>
+
+                                        <span class="min-w-0">
+                                            <span class="block text-sm {% if notificacao.lida %}font-medium{% else %}font-bold{% endif %} text-slate-800 leading-tight">{{ notificacao.titulo }}</span>
+                                            <span class="block text-xs text-slate-500 mt-0.5">{{ notificacao.mensagem }}</span>
+                                            <span class="block text-[11px] text-slate-400 mt-1">
+                                                {{ notificacao.data_envio|timesince }} atrás
+                                                {% if not notificacao.lida %}· não lida{% endif %}
+                                            </span>
+                                        </span>
+                                    </button>
+                                </form>
+                            {% empty %}
+                                <div class="py-8 text-center">
+                                    <i class="fa-regular fa-bell-slash text-3xl text-slate-200"></i>
+                                    <p class="text-sm font-medium text-slate-400 mt-2">Nenhuma notificação por aqui.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if qtd_notificacoes %}
+                            <div class="px-4 py-3 border-t border-slate-200/70 text-center">
+                                <form action="{% url 'limpar_notificacoes' %}" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition">
+                                        Marcar todas como lidas
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!--Nome do Usuário -->
+                <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-slate-800 leading-tight">
+                            {{ request.user.first_name|default:request.user.username|title }}
+                        </p>
+                    </div>
+                    {% comment %}
+                        Avatar clicável: abre o modal de perfil.
+                        `perfil_estudante` / `perfil_monitor` vêm do context
+                        processor e já vêm None quando o usuário não tem perfil.
+                    {% endcomment %}
+                    <button type="button" onclick="abrirPerfil()"
+                        class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm border-2 border-white dark:border-slate-700 ring-2 ring-slate-100 dark:ring-slate-700 cursor-pointer hover:ring-emerald-400 transition bg-gradient-to-br from-[#0b4a42] to-[#127a68] text-white overflow-hidden"
+                        aria-label="Abrir meu perfil">
+                        {% if perfil_estudante.foto_perfil %}
+                            <img src="{{ perfil_estudante.foto_perfil.url }}" alt="Foto de perfil"
+                                class="w-full h-full object-cover">
+                        {% else %}
+                            {% if request.user.first_name %}
+                                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                            {% else %}
+                                {{ request.user.username|slice:":2"|upper }}
+                            {% endif %}
+                        {% endif %}
+                    </button>
+
+                    {% include '_btn_tema.html' %}
+                </div>
+            </div>
+        </header>
+       
+        <main class="flex-1 overflow-y-auto p-8">
+            <main class="flex-1 overflow-y-auto p-8 dark:text-slate-200">
+
+            {% block content %}
+            {% endblock %}
+            </main>
+        </main>
+
+        {% comment %}
+            Mensagens do Django viram toasts flutuantes (canto inferior
+            direito, somem em 3,5s). Fora do <main> de propósito: não
+            empurra o conteúdo da página para baixo.
+        {% endcomment %}
+        {% include '_toasts.html' %}
+
+    </div>
+
+    <script>
+        function toggleNotificacoes(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            var menu = document.getElementById('dropdown-notificacoes');
+            if (!menu) {
+                return;
+            }
+
+            menu.classList.toggle('hidden');
+
+            var botao = document.querySelector('[aria-label="Notificações"]');
+            if (botao) {
+                botao.setAttribute('aria-expanded', menu.classList.contains('hidden') ? 'false' : 'true');
+            }
+        }
+
+        function fecharNotificacoes() {
+            var menu = document.getElementById('dropdown-notificacoes');
+            if (menu) {
+                menu.classList.add('hidden');
+            }
+            var botao = document.querySelector('[aria-label="Notificações"]');
+            if (botao) {
+                botao.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        document.addEventListener('click', function () {
+            var menu = document.getElementById('dropdown-notificacoes');
+            if (menu && !menu.classList.contains('hidden')) {
+                fecharNotificacoes();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                fecharNotificacoes();
+            }
+        });
+    </script>
+
+    {% comment %}
+        Fica FORA do bloco scripts de propósito: painel_estudante.html define
+        o proprio {% block scripts %}, e um bloco filho substitui o do pai -
+        dentro do bloco, este modal nunca apareceria no painel do estudante.
+    {% endcomment %}
+    {% include '_modal_perfil.html' %}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

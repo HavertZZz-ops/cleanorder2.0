@@ -1,0 +1,77 @@
+{% load static %}
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0 dark:bg-slate-900 dark:border-slate-700 transition-colors duration-200">
+    <div>
+        <!-- Logo -->
+        <div class="p-6 flex items-center space-x-3">
+            <div class="bg-[#0b4a42] text-emerald-400 rounded-2xl flex items-center justify-center shadow-md shadow-emerald-900/20">
+                <img src="{% static 'img/logo_casa.svg' %}" alt="Logo" class="w-6 h-6">
+            </div>
+            <span class="text-xl font-black text-emerald-950 tracking-tight dark:text-emerald-300">CleanOrder</span>
+        </div>
+
+        <!-- Identificação do Perfil -->
+        <div class="px-4 mt-2 mb-6">
+            <div class="px-4 py-3 bg-slate-100/70 border border-slate-200/70 rounded-2xl dark:bg-slate-800 dark:border-slate-700">
+                <span class="text-[10px] font-bold tracking-wider text-emerald-700 uppercase block mb-0.5 dark:text-emerald-400">Perfil</span>
+                <span class="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    {% if request.user.monitor %}Monitor{% else %}Estudante{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Menu de Navegação -->
+        <nav class="px-4 space-y-1.5">
+            {% if request.user.monitor %}
+                <a href="{% url 'painel_monitor' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path == '/monitor/' or request.path|slice:':8' == '/quarto/' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-clipboard-check w-5 text-center"></i>
+                    <span>Vistorias</span>
+                </a>
+
+                <a href="{% url 'chamados' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path == '/chamados/' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-screwdriver-wrench w-5 text-center"></i>
+                    <span>Chamados</span>
+                </a>
+
+                <a href="{% url 'gestao_monitor' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path|slice:':15' == '/monitor/gestao' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-sliders w-5 text-center"></i>
+                    <span>Gestão do Alojamento</span>
+                </a>
+            {% else %}
+                <a href="{% url 'painel_estudante' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path == '/aluno/' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-house w-5 text-center"></i>
+                    <span>Início</span>
+                </a>
+
+                <a href="{% url 'progresso' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path == '/progresso/' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-fire w-5 text-center"></i>
+                    <span>Progresso</span>
+                </a>
+
+                <!--<a href="{% url 'reportar_problema' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path == '/reportar/' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i>
+                    <span>Infraestrutura</span>
+                </a>-->
+
+                <a href="{% url 'chamados' %}"
+                    class="flex items-center space-x-3 px-4 py-3 {% if request.path == '/chamados/' %}bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 font-semibold{% else %}text-emerald-950/70 hover:bg-emerald-50 hover:text-emerald-800 font-medium{% endif %} rounded-2xl transition dark:bg-slate-800 dark:text-emerald-200 dark:border-slate-700">
+                    <i class="fa-solid fa-screwdriver-wrench w-5 text-center"></i>
+                    <span>Chamados</span>
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!--Botão Logout-->
+    <div class="p-4 border-t border-slate-200/70 dark:border-slate-700">
+        <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-emerald-950/70 hover:bg-rose-50 hover:text-rose-700 rounded-2xl transition font-medium dark:text-emerald-300/70 dark:hover:bg-rose-950/40 dark:hover:text-rose-300">
+            <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i>
+            <span>Sair da Conta</span>
+        </a>
+    </div>
+</aside>

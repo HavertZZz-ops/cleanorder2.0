@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+
+{% block title %}CleanOrder - Gestao do Alojamento{% endblock %}
+
+{% block header_title %}Gestao do Alojamento{% endblock %}
+
+{% block content %}
+
+        <main class="p-8 max-w-7xl space-y-6">
+
+            <!-- Indicadores -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-5 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quartos</p>
+                    <p class="text-3xl font-black text-emerald-950 mt-1">{{ total_quartos }}</p>
+                </div>
+                <div class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-5 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Moradores</p>
+                    <p class="text-3xl font-black text-emerald-950 mt-1">{{ total_estudantes }}</p>
+                </div>
+                <div class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-5 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Vistorias no periodo</p>
+                    <p class="text-3xl font-black text-emerald-950 mt-1">{{ total_vistorias_periodo }}</p>
+                    <p class="text-xs text-emerald-700 font-semibold mt-1">
+                        {{ aprovacoes_periodo }} aprovacao(oes)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pódio dos alojamentos -->
+            {% include '_podio_alojamentos.html' %}
+
+            <!--
+                Barra de exportação. Carrega ?periodo= e ?quarto= para o
+                relatório respeitar exatamente o que está filtrado na tela —
+                sem isso o PDF sairia com outro recorte que o da tela.
+            -->
+            <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                <div>
+                    <p class="text-sm font-bold text-emerald-950 dark:text-slate-100">Relatório Oficial de Desempenho</p>
+                    <p class="text-xs text-slate-400 mt-0.5">
+                        Exporta os dados do filtro atual ({{ periodo_escolhido }}{% if quarto_filtrado %}, quarto #{{ quarto_filtrado }}{% endif %})
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="{% url 'exportar_relatorio_csv' %}?periodo={{ periodo_escolhido }}{% if quarto_filtrado %}&amp;quarto={{ quarto_filtrado }}{% endif %}"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-600 transition"
+                        id="btn-exportar-csv" title="Baixa a planilha do relatorio com os numeros do filtro atual">
+                        <i class="fa-solid fa-file-csv text-emerald-700 dark:text-emerald-300"></i>
+                        <span>Exportar CSV</span>
+                    </a>
+
+                    <a href="{% url 'relatorio_pdf' %}?periodo={{ periodo_escolhido }}{% if quarto_filtrado %}&amp;quarto={{ quarto_filtrado }}{% endif %}"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#00e6a5] text-teal-950 text-sm font-semibold rounded-2xl hover:bg-[#00d298] shadow-sm active:scale-[0.97] transition-all duration-150"
+                        id="btn-relatorio-pdf" title="Abre o relatorio oficial pronto para imprimir ou salvar em PDF">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Emitir Relatório PDF</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formularios -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Novo estudante -->
+                <section class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <div class="mb-5">
+                        <h2 class="text-lg font-bold text-emerald-950">Cadastrar estudante</h2>
+                        <p class="text-sm text-slate-500 mt-1 dark:text-slate-400">Cria o login e o vinculo com um quarto.</p>
+                    </div>
+
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="acao" value="novo_estudante">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="username" class="text-sm font-bold text-slate-800">Login</label>
+                                <input type="text" id="username" name="username" required
+                                    class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                            </div>
+                            <div class="space-y-2">
+                                <label for="nome" class="text-sm font-bold text-slate-800">Nome</label>
+                                <input type="text" id="nome" name="nome"
+                                    class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="matricula" class="text-sm font-bold text-slate-800">Matricula</label>
+                                <input type="text" id="matricula" name="matricula" required
+                                    class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                            </div>
+                            <div class="space-y-2">
+                                <label for="cpf" class="text-sm font-bold text-slate-800">CPF</label>
+                                <input type="text" id="cpf" name="cpf"
+                                    class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label for="senha" class="text-sm font-bold text-slate-800">Senha inicial</label>
+                                <input type="text" id="senha" name="senha" required
+                                    class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                            </div>
+                            <div class="space-y-2">
+                                <label for="quarto" class="text-sm font-bold text-slate-800">Quarto</label>
+                                <select id="quarto" name="quarto"
+                                    class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm appearance-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                                    <option value="">Sem quarto (definir depois)</option>
+                                    {% for q in quartos_com_moradores %}
+                                        <option value="{{ q.quarto.id }}">{{ q.quarto }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200/70 flex justify-end">
+                            <button type="submit" class="py-2.5 px-5 bg-[#00e6a5] text-teal-950 font-semibold shadow-sm rounded-2xl hover:bg-[#00d298] active:scale-[0.97] transition-all duration-150">
+                                <i class="fa-solid fa-user-plus mr-2"></i> Cadastrar
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Vincular / mover morador -->
+                <section class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <div class="mb-5">
+                        <h2 class="text-lg font-bold text-emerald-950">Mover morador de quarto</h2>
+                        <p class="text-sm text-slate-500 mt-1 dark:text-slate-400">Atualiza o vinculo. Deixe o quarto vazio para desvincular.</p>
+                    </div>
+
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="acao" value="vincular_quarto">
+
+                        <div class="space-y-2">
+                            <label for="estudante" class="text-sm font-bold text-slate-800">Estudante</label>
+                            <select id="estudante" name="estudante" required
+                                class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm appearance-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                                <option value="">Selecione...</option>
+                                {% for e in estudantes %}
+                                    <option value="{{ e.pk }}">
+                                        {{ e }} ({{ e.quarto|default:"sem quarto" }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="quarto_destino" class="text-sm font-bold text-slate-800">Quarto de destino</label>
+                            <select id="quarto_destino" name="quarto"
+                                class="w-full p-3 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm appearance-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                                <option value="">Desvincular do quarto</option>
+                                {% for q in quartos_com_moradores %}
+                                    <option value="{{ q.quarto.id }}">{{ q.quarto }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200/70 flex justify-end">
+                            <button type="submit" class="py-2.5 px-5 bg-slate-900 text-white hover:bg-slate-800 font-semibold text-sm rounded-2xl transition shadow-sm">
+                                <i class="fa-solid fa-arrows-rotate mr-2"></i> Atualizar vinculo
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Representante e modalidade de divisao -->
+            <section class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                <div class="flex flex-wrap items-end justify-between gap-4 mb-5">
+                    <div>
+                        <h2 class="text-lg font-bold text-emerald-950">Representante e modalidade</h2>
+                        <p class="text-sm text-slate-500 mt-1 dark:text-slate-400">
+                            O representante e sempre um morador do quarto. A modalidade define como as tarefas da semana sao divididas.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    {% for item in quartos_com_moradores %}
+                        <div class="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 space-y-3 dark:bg-slate-800/60 dark:border-slate-700">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <p class="font-bold text-emerald-950 dark:text-slate-100">{{ item.quarto }}</p>
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-200 dark:ring-emerald-700">
+                                    {% if item.quarto.modo_divisao == 'DUPLA' %}&#128101;{% else %}&#128100;{% endif %}
+                                    Divis&atilde;o {{ item.quarto.get_modo_divisao_display }}
+                                </span>
+                            </div>
+
+                            {% if item.quarto.representante %}
+                                <p class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700">
+                                    <span aria-hidden="true">&#11088;</span>
+                                    Representante: {{ item.quarto.representante }}
+                                </p>
+                            {% else %}
+                                <p class="text-xs text-slate-400 dark:text-slate-500">Sem representante definido.</p>
+                            {% endif %}
+
+                            <div class="flex flex-wrap gap-2">
+                                {% for morador in item.moradores %}
+                                    <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white text-slate-700 ring-1 ring-inset ring-slate-200 text-[11px] font-semibold dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700">
+                                        {{ morador }}
+                                        {% if item.quarto.representante_id == morador.pk %}
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold dark:bg-amber-900/40 dark:text-amber-200">
+                                                <span aria-hidden="true">&#11088;</span> Representante
+                                            </span>
+                                        {% endif %}
+                                    </span>
+                                {% empty %}
+                                    <span class="text-xs text-slate-400">Sem moradores.</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <form method="post" class="space-y-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="acao" value="condecorar_representante">
+                                    <input type="hidden" name="quarto" value="{{ item.quarto.id }}">
+
+                                    <div class="space-y-1.5">
+                                        <label for="representante-{{ item.quarto.id }}" class="text-xs font-bold text-slate-500 uppercase dark:text-slate-400">Representante</label>
+                                        <select id="representante-{{ item.quarto.id }}" name="representante"
+                                            class="w-full p-2.5 bg-white border border-slate-200 rounded-2xl text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100">
+                                            <option value="">Nenhum</option>
+                                            {% for morador in item.moradores %}
+                                                <option value="{{ morador.pk }}" {% if item.quarto.representante_id == morador.pk %}selected{% endif %}>
+                                                    {{ morador }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="w-full py-2 px-4 bg-amber-500 text-amber-950 hover:bg-amber-400 font-bold text-xs rounded-2xl transition shadow-sm">
+                                        <i class="fa-solid fa-star mr-1.5"></i> Condecorar Representante
+                                    </button>
+                                </form>
+
+                                <form method="post" class="space-y-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="acao" value="configurar_quarto">
+                                    <input type="hidden" name="quarto" value="{{ item.quarto.id }}">
+
+                                    <div class="space-y-1.5">
+                                        <label for="modo-{{ item.quarto.id }}" class="text-xs font-bold text-slate-500 uppercase dark:text-slate-400">Modalidade</label>
+                                        <select id="modo-{{ item.quarto.id }}" name="modo_divisao"
+                                            class="w-full p-2.5 bg-white border border-slate-200 rounded-2xl text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100">
+                                            {% for valor, rotulo in modos_divisao %}
+                                                <option value="{{ valor }}" {% if item.quarto.modo_divisao == valor %}selected{% endif %}>{{ rotulo }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="w-full py-2 px-4 bg-slate-900 text-white hover:bg-slate-800 font-semibold text-xs rounded-2xl transition shadow-sm">
+                                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Salvar Modalidade
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-sm text-slate-400">Nenhum quarto cadastrado.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Filtros -->
+            <section class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-6 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                <div class="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-emerald-950">Relatorios por quarto</h2>
+                        <p class="text-sm text-slate-500 mt-1 dark:text-slate-400">Desempenho medio, aprovacoes e streak atual.</p>
+                    </div>
+
+                    <form method="get" class="flex flex-wrap items-end gap-3">
+                        <div class="space-y-1">
+                            <label for="periodo" class="text-xs font-bold text-slate-500 uppercase dark:text-slate-400">Periodo</label>
+                            <select id="periodo" name="periodo"
+                                class="p-2.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                                <option value="tudo" {% if periodo_escolhido == 'tudo' %}selected{% endif %}>Todo o historico</option>
+                                <option value="4semanas" {% if periodo_escolhido == '4semanas' %}selected{% endif %}>Ultimas 4 semanas</option>
+                                <option value="semana" {% if periodo_escolhido == 'semana' %}selected{% endif %}>Semana atual</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="quarto_filtro" class="text-xs font-bold text-slate-500 uppercase dark:text-slate-400">Quarto</label>
+                            <select id="quarto_filtro" name="quarto"
+                                class="p-2.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
+                                <option value="">Todos</option>
+                                {% for q in quartos_com_moradores %}
+                                    <option value="{{ q.quarto.id }}" {% if quarto_filtrado == q.quarto.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ q.quarto }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="p-2.5 px-4 bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-sm rounded-2xl transition">
+                            <i class="fa-solid fa-filter mr-1"></i> Filtrar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tabela -->
+                <div class="mt-5 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="sticky top-0 bg-white dark:bg-slate-800 z-10">
+                            <tr class="text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-200/70 dark:border-slate-700">
+                                <th class="py-3 pr-4 font-bold">Quarto</th>
+                                <th class="py-3 pr-4 font-bold">Moradores</th>
+                                <th class="py-3 pr-4 font-bold">Media</th>
+                                <th class="py-3 pr-4 font-bold">Aprov.</th>
+                                <th class="py-3 pr-4 font-bold">Reprov.</th>
+                                <th class="py-3 pr-4 font-bold">Streak</th>
+                                <th class="py-3 pr-4 font-bold">Status</th>
+                                <th class="py-3 pr-4 font-bold">Ultima vistoria</th>
+                                <th class="py-3 font-bold text-center">QR</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for r in relatorios %}
+                                <tr class="hover:bg-slate-100/70/70 transition">
+                                    <td class="py-3 pr-4">
+                                        <span class="font-bold text-emerald-950">{{ r.quarto }}</span>
+                                        <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600">
+                                                {{ r.quarto.get_modo_divisao_display }}
+                                            </span>
+                                            {% if r.quarto.representante %}
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:ring-amber-700">
+                                                    <span aria-hidden="true">&#11088;</span> {{ r.quarto.representante }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="py-3 pr-4 text-slate-500 dark:text-slate-400">
+                                        {% for m in r.moradores %}
+                                            {{ m }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}<span class="text-slate-300">sem moradores</span>{% endfor %}
+                                    </td>
+                                    <td class="py-3 pr-4">
+                                        {% if r.media is not None %}
+                                            <span class="font-black text-emerald-950">{{ r.media }}</span>
+                                            <span class="text-xs text-slate-400">/10</span>
+                                        {% else %}
+                                            <span class="text-slate-300">--</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 pr-4">
+                                        <span class="text-emerald-700 font-bold">{{ r.aprovacoes }}</span>
+                                    </td>
+                                    <td class="py-3 pr-4">
+                                        <span class="text-rose-600 font-bold">{{ r.reprovacoes }}</span>
+                                    </td>
+                                    <td class="py-3 pr-4">
+                                        <span class="font-bold {% if r.streak >= 3 %}text-[#00c896]{% else %}text-slate-400{% endif %}">
+                                            <i class="fa-solid fa-fire mr-0.5" title="Sequencia de vistorias aprovadas seguidas"></i>{{ r.streak }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 pr-4">
+                                        {% if r.status == 'Aprovado' %}
+                                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full px-2 py-1 font-medium text-[11px] font-semibold rounded-full ring-1 ring-inset ring-emerald-400/60">Aprovado</span>
+                                        {% elif r.status == 'Reprovado' %}
+                                            <span class="px-2 py-0.5 bg-rose-100 text-rose-800 border border-rose-300 rounded-full px-2 py-1 font-medium text-[11px] font-semibold rounded-full ring-1 ring-inset ring-rose-400/60">Reprovado</span>
+                                        {% else %}
+                                            <span class="px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-300 rounded-full px-2 py-1 font-medium text-[11px] font-semibold rounded-full ring-1 ring-inset ring-slate-400/50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400">{{ r.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 pr-4 text-slate-500 text-xs dark:text-slate-400">
+                                        {% if r.ultima_vistoria %}
+                                            {{ r.ultima_vistoria.data_vistoria|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span class="text-slate-300">nunca vistoriado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <button type="button"
+                                            onclick="abrirQrCode('{{ r.quarto.id }}', '{{ r.quarto|escapejs }}')"
+                                            class="px-2.5 py-1.5 bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 rounded-full text-[11px] font-semibold hover:bg-emerald-200 transition">
+                                            <i class="fa-solid fa-qrcode mr-1"></i> QR Code
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="9" class="p-0">
+                                        {% include '_empty_state.html' with mensagem='Nenhum quarto cadastrado' sub='Cadastre o primeiro quarto para começar o acompanhamento' %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        {% include '_modal_qrcode.html' %}
+{% endblock content %}

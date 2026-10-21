@@ -1,0 +1,13 @@
+{% comment %}
+    Botão lua/sol. Mesmo markup em todas as telas, para o header não divergir
+    entre base.html e painel_monitor.html.
+
+    Usa aplicarTema() de _tema.html — a página PRECISA incluir aquele include,
+    senão o botão não faz nada.
+{% endcomment %}
+<button type="button" onclick="aplicarTema(temaAtual() === 'dark' ? 'light' : 'dark')"
+    class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-slate-600 flex items-center justify-center shrink-0 transition"
+    aria-label="Alternar tema claro e escuro" title="Alternar tema claro/escuro">
+    <i class="fa-solid fa-moon text-xs dark:hidden"></i>
+    <i class="fa-solid fa-sun text-xs hidden dark:inline"></i>
+</button>

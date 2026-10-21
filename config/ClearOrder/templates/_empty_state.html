@@ -1,0 +1,21 @@
+
+<div class="flex flex-col items-center justify-center text-center py-8 px-4">
+    <svg width="72" height="72" viewBox="0 0 120 120" fill="none" class="mb-3" aria-hidden="true">
+        <rect x="22" y="34" width="76" height="62" rx="10"
+              class="fill-emerald-50 dark:fill-slate-700" stroke="currentColor" stroke-width="3"/>
+        <path d="M22 52h76" class="stroke-slate-300 dark:stroke-slate-500" stroke-width="3"/>
+        <path d="M44 70h32M44 82h20" class="stroke-slate-300 dark:stroke-slate-500"
+              stroke-width="3" stroke-linecap="round"/>
+        <circle cx="84" cy="34" r="15" class="fill-[#00e6a5]" stroke="none"/>
+        <path d="M78 34.5l4.5 4.5L91 30" class="stroke-teal-950" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <p class="text-sm font-semibold text-emerald-950 dark:text-slate-200">
+        {% if mensagem %}{{ mensagem }}{% else %}Nada por aqui{% endif %}
+    </p>
+
+    {% if sub %}
+        <p class="text-xs text-slate-400 mt-1">{{ sub }}</p>
+    {% endif %}
+</div>

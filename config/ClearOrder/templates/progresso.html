@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}CleanOrder - Progresso{% endblock %}
+
+{% block header_title %}Seu Progresso{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto w-full">
+
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+            <h2 class="text-3xl font-black text-slate-800 capitalize flex items-center gap-3">
+                <i class="fa-regular fa-calendar-check text-emerald-700"></i>
+                {{ hoje|date:"F Y" }}
+            </h2>
+            <p class="text-sm text-slate-500 mt-1 font-medium">Seu histórico de vistorias aprovadas neste mês.</p>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-[#0b4a42] to-[#127a68] rounded-3xl p-8 mb-10 shadow-xl shadow-emerald-900/20 relative overflow-hidden flex items-center justify-between border border-emerald-500/30">
+        <div class="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <p class="text-emerald-100 text-xs font-bold uppercase tracking-widest mb-2 opacity-90">Streak Atual</p>
+            <div class="flex items-baseline gap-3">
+                <span class="text-6xl font-black text-white leading-none drop-shadow-md">{{ streak_atual }}</span>
+                <span class="text-4xl animate-bounce drop-shadow-md">🔥</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/70 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+        <div class="grid grid-cols-5 sm:grid-cols-7 gap-3 sm:gap-4">
+            {% for dia in todos_os_dias %}
+                
+                {% if dia in dias_aprovados %}
+                    <div class="aspect-square flex flex-col items-center justify-center bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-3xl shadow-md shadow-emerald-500/30 transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 cursor-default">
+                        <span class="text-xl sm:text-2xl font-black">{{ dia }}</span>
+                        <i class="fa-solid fa-check text-[10px] sm:text-xs mt-0.5 opacity-90"></i>
+                    </div>
+                {% else %}
+                    <div class="aspect-square flex items-center justify-center bg-slate-100/70 text-slate-400 font-bold text-lg sm:text-xl rounded-3xl border border-slate-200/70 hover:bg-slate-100 hover:text-slate-500 cursor-default dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                        {{ dia }}
+                    </div>
+                {% endif %}
+                
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+
+{% load static %}
+
+<section class="lg:col-span-12 space-y-4">
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+        <div class="p-5 bg-white dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Média de Nota</span>
+                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                    <i class="fa-solid fa-star text-xs" title="Media das notas de vistoria no periodo"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-black text-emerald-950 dark:text-slate-100 mt-3" data-kpi="media-nota">
+                {# "1u": uma casa decimal, sem separador da locale pt-BR (vira "10.0"). #}
+                {{ media_nota|default:"0.0"|floatformat:"1u" }}
+            </p>
+            <p class="text-[11px] text-slate-400 mt-1">
+                {% if analytics.kpis.filtrado_por_quarto %}
+                    {{ analytics.kpis.periodo_rotulo }}
+                {% else %}
+                    Últimos {{ analytics.kpis.periodo_dias }} dias
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="p-5 bg-white dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Aproveitamento</span>
+                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                    <i class="fa-solid fa-circle-check text-xs" title="Percentual de vistorias aprovadas"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-black text-emerald-950 dark:text-slate-100 mt-3" data-kpi="aproveitamento">{{ aproveitamento|default:"0" }}%</p>
+            <div class="mt-3 h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                <div class="h-full bg-[#00e6a5] rounded-full transition-all duration-500" style="width: {{ aproveitamento|default:"0" }}%"></div>
+            </div>
+        </div>
+
+        <div class="p-5 bg-white dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Vistorias</span>
+                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                    <i class="fa-solid fa-clipboard-check text-xs" title="Total de vistorias realizadas no periodo"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-black text-emerald-950 dark:text-slate-100 mt-3" data-kpi="total-vistorias">{{ total_vistorias|default:"0" }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+                {% if analytics.kpis.filtrado_por_quarto %}No quarto selecionado{% else %}No período selecionado{% endif %}
+            </p>
+        </div>
+
+        <div class="p-5 bg-white dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Chamados Abertos</span>
+                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center relative">
+                    <i class="fa-solid fa-screwdriver-wrench text-xs" title="Chamados de infraestrutura ainda abertos"></i>
+                    {% if chamados_abertos > 0 %}
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-[#00e6a5] text-teal-950 text-[9px] font-black rounded-full flex items-center justify-center animate-pulse">
+                            {{ chamados_abertos }}
+                        </span>
+                    {% endif %}
+                </span>
+            </div>
+            <p class="text-3xl font-black text-emerald-950 dark:text-slate-100 mt-3" data-kpi="chamados-abertos">{{ chamados_abertos|default:"0" }}</p>
+            <p class="text-[11px] text-slate-400 mt-1">{{ chamados_total|default:"0" }} registrado(s) no total</p>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="p-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <h3 class="text-lg font-bold text-emerald-950 dark:text-slate-100">Visão Geral do Alojamento</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Evolução das notas e perfil dos chamados</p>
+            </div>
+            <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 rounded-full text-[11px] font-semibold">
+                {% if analytics.kpis.filtrado_por_quarto %}Quarto filtrado{% else %}{{ analytics.kpis.periodo_dias }} dias{% endif %}
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <p class="text-xs font-semibold text-slate-500 mb-2">Média semanal de notas de limpeza</p>
+                {% if analytics.serie_notas|length > 1 %}
+                    <div class="h-56"><canvas id="grafico-notas"></canvas></div>
+                {% else %}
+                    {% include '_empty_state.html' with mensagem='Sem vistorias suficientes para o gráfico' sub='É preciso mais de uma semana de histórico' %}
+                {% endif %}
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold text-slate-500 mb-2">Chamados por categoria</p>
+                {% if analytics.kpis.chamados_total > 0 %}
+                    <div class="h-56"><canvas id="grafico-chamados"></canvas></div>
+                {% else %}
+                    {% include '_empty_state.html' with mensagem='Nenhum chamado registrado' sub='Tudo em ordem por aqui!' %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- |json_script -->
+{{ analytics|json_script:"dados-analytics" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        var el = document.getElementById('dados-analytics');
+        if (!el || typeof Chart === 'undefined') { return; }   // sem internet: card degrada, não quebra
+
+        var dados = JSON.parse(el.textContent);
+        Chart.defaults.font.family = 'inherit';
+        Chart.defaults.color = '#64748b';
+
+        // ---------- linha: média semanal ----------
+        var canvasNotas = document.getElementById('grafico-notas');
+        if (canvasNotas) {
+            new Chart(canvasNotas, {
+                type: 'line',
+                data: {
+                    labels: dados.serie_notas.map(function (p) {
+                        return new Date(p.inicio + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    }),
+                    datasets: [{
+                        label: 'Média',
+                        data: dados.serie_notas.map(function (p) { return p.media; }),
+                        borderColor: '#0b4a42',
+                        backgroundColor: 'rgba(0, 230, 165, 0.18)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#00e6a5',
+                        pointBorderColor: '#0b4a42',
+                        pointBorderWidth: 2,
+                        spanGaps: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            min: 0, max: 10,
+                            ticks: { stepSize: 2 },
+                            grid: { color: 'rgba(148, 163, 184, 0.18)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ---------- rosca: chamados por categoria ----------
+        var canvasChamados = document.getElementById('grafico-chamados');
+        if (canvasChamados) {
+            new Chart(canvasChamados, {
+                type: 'doughnut',
+                data: {
+                    labels: dados.categorias.map(function (c) { return c.rotulo; }),
+                    datasets: [{
+                        data: dados.categorias.map(function (c) { return c.total; }),
+                        backgroundColor: dados.categorias.map(function (c) { return c.cor; }),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, pointStyle: 'circle', padding: 14 }
+                        }
+                    }
+                }
+            });
+        }
+    })();
+</script>

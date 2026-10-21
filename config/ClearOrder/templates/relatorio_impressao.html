@@ -1,0 +1,315 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório Institucional de Desempenho dos Alojamentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #0f172a;
+            margin: 0;
+            padding: 24px;
+            background: #f8fafc;
+        }
+
+        .folha {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .so-impressao { display: none; }
+
+        /* ---------- na tela ---------- */
+        .barra-acoes {
+            max-width: 900px;
+            margin: 0 auto 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .barra-acoes a {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background .15s;
+        }
+        .btn-verde { background: #00e6a5; color: #042f2e; }
+        .btn-verde:hover { background: #00d298; }
+        .btn-cinza {
+            background: #fff; color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* ---------- cabecalho institucional ---------- */
+        .institucional {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid #0b4a42;
+        }
+        .marca {
+            width: 52px; height: 52px;
+            background: #0b4a42;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .marca img { width: 26px; height: 26px; }
+        .institucional h1 { font-size: 15px; margin: 0; color: #0b4a42; letter-spacing: .02em; }
+        .institucional p { font-size: 12px; margin: 2px 0 0; color: #64748b; }
+
+        .titulo-rel { margin: 24px 0 4px; }
+        .titulo-rel h2 {
+            font-size: 22px; margin: 0; color: #0b4a42;
+            text-transform: uppercase; letter-spacing: .04em;
+        }
+        .titulo-rel p { font-size: 12px; color: #64748b; margin: 4px 0 0; }
+
+        .meta {
+            display: flex; flex-wrap: wrap; gap: 24px;
+            margin-top: 16px; padding: 12px 16px;
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+            font-size: 12px;
+        }
+        .meta b { display: block; color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+
+        /* ---------- indicadores ---------- */
+        .indicadores {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 12px; margin: 22px 0;
+        }
+        .indicador {
+            border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 14px; text-align: center; background: #fff;
+        }
+        .indicador .n {
+            font-size: 24px; font-weight: 800; color: #0b4a42;
+        }
+        .indicador .r {
+            font-size: 10px; text-transform: uppercase;
+            letter-spacing: .06em; color: #64748b; margin-top: 2px;
+        }
+
+        /* ---------- tabela ---------- */
+        h3.secao {
+            font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+            color: #0b4a42; margin: 0 0 10px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        thead th {
+            background: #0b4a42; color: #fff;
+            text-align: left; padding: 9px 10px;
+            font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+        }
+        tbody td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; }
+        tbody tr:nth-child(even) { background: #f8fafc; }
+        .num { text-align: center; }
+
+        .pill {
+            display: inline-block; padding: 2px 9px;
+            border-radius: 999px; font-size: 10px; font-weight: 700;
+        }
+        .pill-aprovado { background: #d1fae5; color: #065f46; }
+        .pill-reprovado { background: #ffe4e6; color: #9f1239; }
+        .pill-pendente { background: #f1f5f9; color: #475569; }
+
+        /* ---------- assinaturas ---------- */
+        .assinaturas {
+            display: flex; justify-content: space-between;
+            gap: 48px; margin-top: 48px; page-break-inside: avoid;
+        }
+        .assinatura { flex: 1; text-align: center; }
+        .assinatura .linha {
+            border-top: 1px solid #94a3b8;
+            margin-bottom: 6px; padding-top: 46px;
+        }
+        .assinatura strong { font-size: 12px; color: #0f172a; display: block; }
+        .assinatura span { font-size: 10px; color: #64748b; }
+
+        .rodape {
+            margin-top: 28px; padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 10px; color: #94a3b8; text-align: center;
+        }
+
+        /* ---------- IMPRESSAO ---------- */
+        @media print {
+            @page { size: A4; margin: 14mm 12mm; }
+
+            body { background: #fff; padding: 0; font-size: 11pt; }
+
+            /* nada de interface no documento impresso */
+            .barra-acoes,
+            .no-print { display: none !important; }
+            .so-impressao { display: block; }
+
+            .folha {
+                max-width: none; border: 0; border-radius: 0; padding: 0;
+                box-shadow: none;
+            }
+
+            /* fundo na impressa é o calo: precisa do color-adjust acima */
+            thead th, .indicadores, .pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            /* não quebrar quarto no meio entre duas páginas */
+            thead { display: table-header-group; }        /* repete o cabeçalho */
+            tr, .indicador, .assinaturas { page-break-inside: avoid; }
+            h3.secao { page-break-after: avoid; }
+            table { page-break-before: auto; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="barra-acoes no-print">
+        <a href="{% url 'gestao_monitor' %}?periodo={{ periodo_escolhido }}" class="btn-cinza">
+            <i class="fa-solid fa-arrow-left"></i> Voltar à Gestão
+        </a>
+        <a href="?periodo={{ periodo_escolhido }}&amp;auto=1" class="btn-verde">
+            <i class="fa-solid fa-print"></i> Imprimir / Salvar em PDF
+        </a>
+    </div>
+
+    <div class="folha">
+
+        <!-- Cabeçalho institucional -->
+        <header class="institucional">
+            <div class="marca">
+                <img src="{% static 'img/logo_casa.svg' %}" alt="CleanOrder">
+            </div>
+            <div>
+                <h1>IFSULDEMINAS — Instituto Federal do Sul de Minas Gerais</h1>
+                <p>Coordenação de Alojamentos Estudantis · Sistema CleanOrder</p>
+            </div>
+        </header>
+
+        <div class="titulo-rel">
+            <h2>Relatório Institucional de Desempenho dos Alojamentos</h2>
+            <p>
+                {% if periodo_escolhido == 'tudo' %}Consolidado geral
+                {% elif periodo_escolhido == 'semana' %}Semana corrente
+                {% else %}Últimas 4 semanas{% endif %}
+            </p>
+        </div>
+
+        <div class="meta">
+            <div><b>Emitido em</b>{{ emitido_em|date:"d/m/Y" }} às {{ emitido_em|date:"H:i" }}</div>
+            <div><b>Monitor responsável</b>{{ nome_emissor }}</div>
+            {% if emissor.siape %}<div><b>SIAPE</b>{{ emissor.siape }}</div>{% endif %}
+            <div><b>Bloco</b>{{ emissor.bloco_responsavel }}</div>
+        </div>
+
+        <!-- Indicadores -->
+        <div class="indicadores">
+            <div class="indicador">
+                <div class="n">{{ total_quartos }}</div>
+                <div class="r">Quartos</div>
+            </div>
+            <div class="indicador">
+                <div class="n">{{ total_vistorias_periodo }}</div>
+                <div class="r">Vistorias</div>
+            </div>
+            <div class="indicador">
+                <div class="n">{% if media_geral is not None %}{{ media_geral }}{% else %}—{% endif %}</div>
+                <div class="r">Média geral</div>
+            </div>
+            <div class="indicador">
+                <div class="n">{{ quartos_aprovados }}</div>
+                <div class="r">Quartos aprovados</div>
+            </div>
+        </div>
+
+        <!-- Tabela consolidada -->
+        <h3 class="secao">Desempenho por quarto</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Quarto</th>
+                    <th>Moradores</th>
+                    <th class="num">Média</th>
+                    <th class="num">Vistorias</th>
+                    <th class="num">Aprov.</th>
+                    <th class="num">Reprov.</th>
+                    <th class="num">Streak</th>
+                    <th>Última vistoria</th>
+                    <th>Situação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in relatorios %}
+                    <tr>
+                        <td><strong>{{ r.quarto }}</strong></td>
+                        <td>
+                            {% for m in r.moradores %}
+                                {{ m.user.get_full_name|default:m.user.username }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}—{% endfor %}
+                        </td>
+                        <td class="num">{% if r.media is not None %}{{ r.media }}{% else %}—{% endif %}</td>
+                        <td class="num">{{ r.total_vistorias }}</td>
+                        <td class="num">{{ r.aprovacoes }}</td>
+                        <td class="num">{{ r.reprovacoes }}</td>
+                        <td class="num">{{ r.streak|default:0 }}</td>
+                        <td>
+                            {% if r.ultima_vistoria %}
+                                {{ r.ultima_vistoria.data_vistoria|date:"d/m/Y" }}
+                            {% else %}Nunca{% endif %}
+                        </td>
+                        <td>
+                            {% if r.status == 'Aprovado' %}
+                                <span class="pill pill-aprovado">Aprovado</span>
+                            {% elif r.status == 'Reprovado' %}
+                                <span class="pill pill-reprovado">Reprovado</span>
+                            {% else %}
+                                <span class="pill pill-pendente">{{ r.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9" style="text-align:center;color:#64748b;padding:24px">Nenhum quarto cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Assinaturas -->
+        <div class="assinaturas">
+            <div class="assinatura">
+                <div class="linha"></div>
+                <strong>Coordenação de Alojamentos</strong>
+                <span>IFSULDEMINAS</span>
+            </div>
+            <div class="assinatura">
+                <div class="linha"></div>
+                <strong>{{ nome_emissor }}</strong>
+                <span>Monitor Responsável{% if emissor.siape %} · SIAPE {{ emissor.siape }}{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="rodape">
+            Documento gerado pelo CleanOrder em {{ emitido_em|date:"d/m/Y" }} às {{ emitido_em|date:"H:i" }}
+            · {% if quarto_filtrado %}Filtro aplicado: quarto #{{ quarto_filtrado }} ·
+            {% endif %}Aprovação: {{ total_aprovacoes }} · Reprovação: {{ total_reprovacoes }}
+        </div>
+    </div>
+
+    {% if imprimir_automatico %}
+        <script>window.onload = function () { window.print(); };</script>
+    {% endif %}
+</body>
+</html>

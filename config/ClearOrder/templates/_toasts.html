@@ -1,0 +1,80 @@
+{% comment %}
+    Toasts flutuantes — substituem o bloco de mensagens que ficava no fluxo
+    da página. Ficam no canto inferior direito e somem sozinhos.
+
+    Acessibilidade e robustez:
+      - `role="status"` + `aria-live="polite"`: leitor de tela anuncia sem interromper;
+      - cada toast é dismissível no X, para quem tem mais de uma mensagem;
+      - se o JS estiver bloqueado, o toast NÃO some sozinho em 3.5s — ele fica.
+        Nada de conteúdo inacessível por dependência de script;
+      - a animação de entrada é por CSS puro (@keyframes), não por @apply, para
+        não depender do suporte do CDN a diretivas dentro de <style>.
+
+    ATENÇÃO: painel_monitor.html NÃO usa este include — ele é standalone e
+    mantém o banner `data-msg` dentro do <main>, que é o que os testes de
+    PainelMonitorVisualTests verificam.
+{% endcomment %}
+
+{% if messages %}
+    <div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 w-full max-w-sm pointer-events-none">
+
+        {% for message in messages %}
+            <div data-toast role="status" aria-live="polite"
+                class="pointer-events-auto bg-white dark:bg-slate-900 border shadow-lg rounded-2xl p-4 flex items-start gap-3 toast-enter
+                    {% if message.tags == 'success' %}
+                        border-emerald-200 dark:border-emerald-800
+                    {% elif message.tags == 'error' %}
+                        border-rose-200 dark:border-rose-800
+                    {% elif message.tags == 'warning' %}
+                        border-amber-200 dark:border-amber-800
+                    {% else %}
+                        border-slate-200 dark:border-slate-700
+                    {% endif %}
+                ">
+                <span class="shrink-0 w-6 h-6 flex items-center justify-center rounded-full
+                    {% if message.tags == 'success' %}
+                        bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300
+                    {% elif message.tags == 'error' %}
+                        bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300
+                    {% elif message.tags == 'warning' %}
+                        bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300
+                    {% else %}
+                        bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300
+                    {% endif %}
+                ">
+                    {% if message.tags == 'success' %}
+                        <i class="fa-solid fa-check text-xs"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-info text-xs"></i>
+                    {% endif %}
+                </span>
+
+                <p class="flex-1 text-sm font-medium text-slate-700 dark:text-slate-200 pt-0.5">{{ message }}</p>
+
+                <button type="button" onclick="this.closest('[data-toast]').remove()"
+                    aria-label="Fechar aviso"
+                    class="shrink-0 w-6 h-6 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        (function () {
+            var TOAST_MS = 3500;   // 3,5 segundos
+            document.querySelectorAll('[data-toast]').forEach(function (t) {
+                // tira a classe de entrada antes de fechar, para não piscar
+                window.setTimeout(function () {
+                    t.classList.remove('toast-enter');
+                    t.classList.add('toast-saindo');
+                    window.setTimeout(function () { t.remove(); }, 250);
+                }, TOAST_MS);
+            });
+        })();
+    </script>
+{% endif %}

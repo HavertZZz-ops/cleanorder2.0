@@ -1,0 +1,231 @@
+
+
+<div id="modal-perfil" onclick="fecharPerfil(event)"
+    class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 transition-all duration-200 ease-out">
+
+    <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden modal-card-entra transition-all duration-200 ease-out"
+        onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Meu perfil">
+
+        <!-- Cabeçalho -->
+        <div class="bg-[#0b4a42] px-6 pt-6 pb-8">
+            <div class="flex items-start justify-between">
+                {% if perfil_estudante.foto_perfil %}
+                    <img src="{{ perfil_estudante.foto_perfil.url }}" alt="Foto de perfil"
+                        class="w-16 h-16 rounded-2xl object-cover border-2 border-[#00e6a5]">
+                {% else %}
+                    <div class="w-16 h-16 rounded-2xl bg-[#00e6a5] text-teal-950 flex items-center justify-center font-black text-xl border-2 border-white/40">
+                        {% if request.user.first_name %}
+                            {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                        {% else %}
+                            {{ request.user.username|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <button type="button" onclick="fecharPerfil()" aria-label="Fechar"
+                    class="w-9 h-9 rounded-xl bg-white/10 text-emerald-100 hover:bg-white/20 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-white font-bold text-lg mt-4 leading-tight">
+                {% if request.user.get_full_name %}
+                    {{ request.user.get_full_name }}
+                {% else %}
+                    {{ request.user.username }}
+                {% endif %}
+            </p>
+
+            {% if perfil_monitor %}
+                <span class="inline-block mt-2 px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-full uppercase">
+                    Monitor
+                </span>
+            {% elif perfil_estudante %}
+                <span class="inline-block mt-2 px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-full uppercase">
+                    Estudante
+                </span>
+            {% else %}
+                <span class="inline-block mt-2 px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-full uppercase">
+                    Conta administrativa
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Dados -->
+        <div class="px-6 py-5 -mt-4 space-y-3">
+
+            {% if perfil_estudante %}
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                    <span class="text-xs font-semibold text-slate-500">Quarto / Bloco</span>
+                    <span class="text-sm font-bold text-emerald-950">
+                        {% if perfil_estudante.quarto %}
+                            {{ perfil_estudante.quarto }}
+                            {% comment %} Badge do Quarto Ouro, ao lado do número do quarto. {% endcomment %}
+                            {% if perfil_quarto_ouro %}
+                                <span class="ml-1 inline-flex items-center px-2 py-0.5 bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 rounded-full text-[10px] font-bold uppercase align-middle">
+                                    👑 Quarto Ouro
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            Sem Quarto Alocado
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                    <span class="text-xs font-semibold text-slate-500">Matrícula</span>
+                    <span class="text-sm font-bold text-emerald-950">{{ perfil_estudante.matricula }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                    <span class="text-xs font-semibold text-slate-500">CPF</span>
+                    <span class="text-sm font-bold text-emerald-950">{{ perfil_cpf|default:"Não informado" }}</span>
+                </div>
+            {% elif perfil_monitor %}
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                    <span class="text-xs font-semibold text-slate-500">SIAPE</span>
+                    <span class="text-sm font-bold text-emerald-950">{{ perfil_monitor.siape }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                    <span class="text-xs font-semibold text-slate-500">Bloco responsável</span>
+                    <span class="text-sm font-bold text-emerald-950">{{ perfil_monitor.bloco_responsavel }}</span>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                    <span class="text-xs font-semibold text-slate-500">CPF</span>
+                    <span class="text-sm font-bold text-emerald-950">{{ perfil_cpf|default:"Não informado" }}</span>
+                </div>
+            {% else %}
+                <p class="text-sm text-slate-500 text-center py-4">
+                    Esta conta não possui perfil de estudante ou monitor vinculado.
+                </p>
+            {% endif %}
+
+            <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                <span class="text-xs font-semibold text-slate-500">Usuário</span>
+                <span class="text-sm font-bold text-emerald-950">{{ request.user.username }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/70 bg-slate-100/70">
+                <span class="text-xs font-semibold text-slate-500">E-mail</span>
+                <span class="text-sm font-bold text-emerald-950 text-right truncate">
+                    {{ request.user.email|default:"Não informado" }}
+                </span>
+            </div>
+        </div>
+
+            {% comment %} Customização: foto + tema. {% endcomment %}
+            <div class="px-6 pt-5 pb-5 border-t border-slate-200/70 dark:border-slate-700 space-y-5">
+
+                <!-- Foto de perfil -->
+                {% if perfil_estudante %}
+                    <div>
+                        <p class="text-[10px] font-bold tracking-wider text-emerald-700 uppercase block mb-2 dark:text-emerald-400">
+                            Foto de Perfil
+                        </p>
+
+                        <form action="{% url 'atualizar_foto_perfil' %}" method="POST" enctype="multipart/form-data"
+                            class="flex items-center gap-3">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+
+                            <label for="foto_perfil"
+                                class="shrink-0 w-14 h-14 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-emerald-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 flex items-center justify-center cursor-pointer transition"
+                                aria-label="Trocar foto de perfil">
+                                <i class="fa-solid fa-camera text-emerald-700 dark:text-emerald-300"></i>
+                            </label>
+
+                            {% comment %}
+                                this.form = o <form> que envolve este input; submeter
+                                direto evita depender de um id gerado (path tem /).
+                            {% endcomment %}
+                            <input type="file" name="foto_perfil" id="foto_perfil" accept="image/*" class="sr-only"
+                                onchange="this.form.submit()">
+
+                            <button type="submit" class="flex-1 text-left">
+                                <span class="block text-sm font-semibold text-emerald-950 dark:text-slate-100">Escolher foto</span>
+                                <span class="block text-[11px] text-slate-400">Clique no ícone · JPG, PNG ou WEBP · até 5 MB</span>
+                            </button>
+                        </form>
+
+                        {% if perfil_estudante.foto_perfil %}
+                            <form action="{% url 'atualizar_foto_perfil' %}" method="POST" class="mt-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <input type="hidden" name="acao" value="remover">
+                                <button type="submit"
+                                    class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 flex items-center gap-1.5 transition">
+                                    <i class="fa-solid fa-trash-can"></i> Remover foto e voltar às iniciais
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Tema -->
+                <div>
+                    <p class="text-[10px] font-bold tracking-wider text-emerald-700 uppercase block mb-2 dark:text-emerald-400">
+                        Personalização
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" data-tema-btn="light" onclick="aplicarTema('light')"
+                            class="py-2.5 px-3 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+                            <span>☀️</span> Tema Claro
+                        </button>
+
+                        <button type="button" data-tema-btn="dark" onclick="aplicarTema('dark')"
+                            class="py-2.5 px-3 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+                            <span>🌙</span> Tema Escuro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé -->
+            <div class="px-6 py-5 border-t border-slate-200/70 dark:border-slate-700 flex gap-3">
+                <button type="button" onclick="fecharPerfil()"
+                    class="flex-1 py-3 text-slate-700 dark:text-slate-200 font-semibold text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-2xl transition">
+                    Fechar
+                </button>
+
+                <form action="{% url 'logout' %}" method="POST" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="w-full py-3 text-teal-950 font-semibold text-sm bg-[#00e6a5] hover:bg-[#00d298] rounded-2xl shadow-sm active:scale-[0.97] transition-all duration-150">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Sair da Conta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function abrirPerfil() {
+        var modal = document.getElementById('modal-perfil');
+        if (!modal) { return; }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function fecharPerfil(event) {
+        // clique fora do card tambem fecha
+        if (event && event.target !== event.currentTarget) { return; }
+
+        var modal = document.getElementById('modal-perfil');
+        if (!modal) { return; }
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') { return; }
+        var modal = document.getElementById('modal-perfil');
+        if (modal && !modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    });
+</script>

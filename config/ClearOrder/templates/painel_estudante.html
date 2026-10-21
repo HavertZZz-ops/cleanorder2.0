@@ -1,129 +1,211 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CleanOrder - Painel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-slate-50 font-sans text-slate-700 antialiased min-h-screen flex">
+{% extends 'base.html' %}
 
-   
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
-        <div>
-           
-            <div class="p-6 flex items-center space-x-3">
-                <div class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-sparkles text-xl"></i>
-                </div>
-                <span class="text-xl font-bold text-blue-900">CleanOrder</span>
-            </div>
+{% block title %}CleanOrder - Home{% endblock %}
 
-            
-            <nav class="px-4 space-y-1">
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 font-medium rounded-xl">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
-                </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
-                    <i class="fa-regular fa-square-check"></i>
-                    <span>Tarefas</span>
-                </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
-                    <i class="fa-solid fa-fire"></i>
-                    <span>Progresso</span>
-                </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Suporte</span>
-                </a>
-                <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
-                </a>
-            </nav>
-        </div>
-    </aside>
+{% block header_title %}Pagina Inicial{% endblock %}
 
-   
-    <div class="flex-1 flex flex-col">
+{% block content %}
 
-       
-        <header class="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-8">
-            <span class="text-sm text-slate-500">Data Atual: {% now "d/m/Y" %} </span>
-            
-            <div class="flex items-center space-x-4">
-                <button class="relative text-slate-400 hover:text-slate-600">
-                    <i class="fa-regular fa-bell text-xl"></i>
-                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-                </button>
-                <div class="flex items-center space-x-3 pl-4 border-l border-slate-200">
-                    <div class="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">
-                        US
-                    </div>
-                    <div class="text-sm">
-                        <p class="font-bold text-slate-800 leading-none">{{ estudante.nome|default:request.user.username }}</p>
-                        <p class="text-xs text-slate-400 leading-none mt-1">{{ estudante.bloco|default:request.user.email }}</p>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        
         <main class="p-8 max-w-6xl space-y-6">
 
-           
-            {% if messages %}
-                <div class="space-y-3">
-                    {% for message in messages %}
-                        <div class="flex items-center justify-between p-4 rounded-xl border {% if message.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} shadow-sm transition">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check text-emerald-500{% else %}fa-circle-info text-blue-500{% endif %} text-lg"></i>
-                                <span class="text-sm font-medium">{{ message }}</span>
-                            </div>
-                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-sm">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+            <!-- Mensagem de Boas-Vindas -->
+            <div>
+                <h1 class="text-2xl font-bold text-emerald-950">Olá, {{ estudante.nome|default:request.user.username }}! 👋</h1>
+                <p class="text-slate-500 text-sm mt-1 dark:text-slate-400">Aqui estão o status das limpezas e organizações dos alojamentos.</p>
+            </div>
+
+            {% if estudante.quarto %}
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="px-3 py-1.5 rounded-2xl bg-slate-100/80 text-slate-700 ring-1 ring-inset ring-slate-300 text-xs font-semibold dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-600">
+                        {% if estudante.quarto.modo_divisao == 'DUPLA' %}&#128101;{% else %}&#128100;{% endif %}
+                        Divisão {{ estudante.quarto.get_modo_divisao_display }}
+                    </span>
+
+                    {% if estudante.quarto.representante_id == estudante.pk %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-300 text-xs font-bold dark:bg-amber-900/30 dark:text-amber-200 dark:ring-amber-700">
+                            <span aria-hidden="true">&#11088;</span> Você é o Representante do Quarto
+                        </span>
+                    {% elif estudante.quarto.representante %}
+                        <span class="px-3 py-1.5 rounded-2xl bg-amber-50/70 text-amber-800 ring-1 ring-inset ring-amber-200 text-xs font-semibold dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-800">
+                            <span aria-hidden="true">&#11088;</span> Representante: {{ estudante.quarto.representante }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <section class="bg-white shadow-sm border border-slate-200/70 rounded-3xl p-5 dark:bg-slate-900 dark:border-slate-800">
+                    <div class="flex flex-wrap items-end justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-emerald-950 dark:text-slate-100">Representante e modalidade</h2>
+                            <p class="text-xs text-slate-500 mt-1 dark:text-slate-400">
+                                {% if not estudante.quarto.representante %}
+                                    A representação deste quarto ainda não foi definida.
+                                {% elif estudante.quarto.representante_id == estudante.pk %}
+                                    Você representa este quarto e pode alterar a modalidade de divisão.
+                                {% else %}
+                                    Informações sobre o representante e a modalidade do quarto.
+                                {% endif %}
+                            </p>
                         </div>
-                    {% endfor %}
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600">
+                            {{ moradores_quarto|length }} morador(es)
+                        </span>
+                    </div>
+
+                    {% if not estudante.quarto.representante %}
+                        <div class="rounded-2xl bg-slate-50 border border-slate-200/70 p-5 text-center dark:bg-slate-800/60 dark:border-slate-700">
+                            <p class="font-bold text-slate-700 dark:text-slate-200">
+                                <span aria-hidden="true">&#11088;</span> Representante: Nenhum condecorado ainda.
+                            </p>
+                            <p class="text-xs text-slate-500 mt-2 dark:text-slate-400">
+                                Aguarde o Monitor condecorar um representante para este quarto.
+                            </p>
+                        </div>
+                    {% elif estudante.quarto.representante_id == estudante.pk %}
+                        <div class="rounded-2xl bg-amber-50 border border-amber-200/80 p-4 dark:bg-amber-900/20 dark:border-amber-800">
+                            <p class="font-bold text-amber-900 dark:text-amber-100">
+                                <span aria-hidden="true">&#11088;</span> Você é o Representante do Quarto
+                            </p>
+                            <p class="text-xs text-amber-800/80 mt-1 dark:text-amber-200/80">
+                                Como representante, você pode definir como as tarefas deste quarto serão divididas.
+                            </p>
+                        </div>
+
+                        <form method="post" action="{% url 'painel_estudante' %}" class="mt-4 space-y-3">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="configurar_quarto">
+
+                            <div class="space-y-1.5">
+                                <label for="modo-aluno" class="text-xs font-bold text-slate-500 uppercase dark:text-slate-400">Modalidade de divisão</label>
+                                <select id="modo-aluno" name="modo_divisao"
+                                    class="w-full p-2.5 bg-white border border-slate-200 rounded-2xl text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100">
+                                    {% for valor, rotulo in modos_divisao %}
+                                        <option value="{{ valor }}" {% if estudante.quarto.modo_divisao == valor %}selected{% endif %}>{{ rotulo }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" class="py-2 px-4 bg-slate-900 text-white hover:bg-slate-800 font-semibold text-xs rounded-2xl transition shadow-sm">
+                                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Salvar Modalidade
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="flex flex-wrap gap-2 pt-3 mt-3 border-t border-slate-100 dark:border-slate-800">
+                            {% for morador in moradores_quarto %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-200 text-xs font-semibold dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700">
+                                    {{ morador }}
+                                    {% if estudante.quarto.representante_id == morador.pk %}
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold dark:bg-amber-900/40 dark:text-amber-200">
+                                            <span aria-hidden="true">&#11088;</span> Representante
+                                        </span>
+                                    {% endif %}
+                                </span>
+                            {% empty %}
+                                <span class="text-xs text-slate-400">Nenhum morador vinculado.</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="rounded-2xl bg-slate-50 border border-slate-200/70 p-5 space-y-2 dark:bg-slate-800/60 dark:border-slate-700">
+                            <p class="font-bold text-slate-800 dark:text-slate-100">
+                                <span aria-hidden="true">&#11088;</span> Representante: {{ estudante.quarto.representante }}
+                                <span class="text-slate-400 mx-1">|</span>
+                                <span aria-hidden="true">&#128101;</span> Modo: {{ estudante.quarto.get_modo_divisao_display }}.
+                            </p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                Apenas o representante {{ estudante.quarto.representante }} ou o Monitor pode alterar a modalidade do quarto.
+                            </p>
+                        </div>
+                    {% endif %}
+                </section>
+            {% endif %}
+
+            <!--
+                Gamificação. `eh_quarto_ouro` só é verdadeiro quando o quarto
+                TEM vistorias avaliadas — um quarto vazio não ganha nada.
+            -->
+            {% if eh_quarto_ouro %}
+                <div class="p-6 rounded-3xl bg-gradient-to-r from-[#0b4a42] to-[#127a68] text-white shadow-md border border-emerald-800/20">
+                    <div class="flex items-center gap-4">
+                        <span class="text-4xl">🏆</span>
+                        <div class="min-w-0">
+                            <p class="font-black text-lg leading-tight">
+                                Seu alojamento é o Quarto Ouro deste mês!
+                            </p>
+                            <p class="text-emerald-100 text-sm mt-0.5">
+                                Parabéns pelo empenho na organização.
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if meu_podio %}
+                        <div class="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-white/15 text-[11px] text-emerald-100">
+                            <span><i class="fa-solid fa-star mr-1"></i>Média {{ meu_podio.media }} / 10</span>
+                            <span><i class="fa-solid fa-fire mr-1"></i>{{ meu_podio.streak }} dia(s) de streak</span>
+                            <span><i class="fa-solid fa-clipboard-check mr-1"></i>{{ meu_podio.total_vistorias }} vistoria(s)</span>
+                        </div>
+                    {% endif %}
+                </div>
+            {% elif meu_podio %}
+                <div class="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 flex items-center gap-4">
+                    <span class="text-2xl">{{ meu_podio.medalha }}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-emerald-950 dark:text-slate-100">
+                            Seu quarto está em {{ meu_podio.posicao }}º no ranking
+                        </p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">
+                            Média {{ meu_podio.media }} / 10 · {{ meu_podio.streak }} dia(s) de streak
+                        </p>
+                    </div>
+                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-300 dark:ring-slate-600 rounded-full text-[11px] font-semibold shrink-0">
+                        {{ meu_podio.posicao }}º lugar
+                    </span>
                 </div>
             {% endif %}
 
-            
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Olá, {{ estudante.nome|default:request.user.username }}! 👋</h1>
-                <p class="text-slate-500 text-sm mt-1">Aqui está o status das limpezas e organizações dos alojamentos.</p>
-            </div>
-
-          
+            <!-- tarefas -->
             <div class="space-y-4">
                 {% for tarefa in tarefas %}
-                   
-                    <div class="p-6 rounded-2xl border transition {% if tarefa.status == 'Concluída' %}bg-emerald-50/50 border-emerald-200{% else %}bg-white border-slate-100 shadow-sm{% endif %} space-y-4">
+                    <div class="p-6 rounded-3xl border {% if tarefa.status == 'Concluída' %}bg-emerald-50/50 border-emerald-200{% else %}bg-white border-slate-200/70 shadow-sm{% endif %} space-y-4 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                         
-                        <div class="flex items-center justify-between">
-                            {% if tarefa.status == 'Concluída' %}
-                                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-md">
-                                    <i class="fa-solid fa-check mr-1"></i> Concluída
-                                </span>
-                            {% else %}
-                                <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-md">
-                                    <i class="fa-regular fa-square-check mr-1"></i> Pendente
-                                </span>
-                            {% endif %}
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                {% if tarefa.status == 'Concluída' %}
+                                    <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full px-2 py-1 font-medium text-xs font-semibold rounded-md">
+                                        <i class="fa-solid fa-check mr-1"></i> Concluída
+                                    </span>
+                                {% else %}
+                                    <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-md">
+                                        <i class="fa-regular fa-square-check mr-1"></i> Pendente
+                                    </span>
+                                {% endif %}
+
+                                {% if tarefa.aberta %}
+                                    <span class="inline-block px-2.5 py-1 bg-sky-50 text-sky-800 ring-1 ring-inset ring-sky-300 text-[11px] font-semibold rounded-full dark:bg-sky-900/30 dark:text-sky-200 dark:ring-sky-700">
+                                        Livre — qualquer morador pode assumir
+                                    </span>
+                                {% elif tarefa.estudante_responsavel_2 %}
+                                    <span class="inline-block px-2.5 py-1 bg-violet-50 text-violet-800 ring-1 ring-inset ring-violet-300 text-[11px] font-semibold rounded-full dark:bg-violet-900/30 dark:text-violet-200 dark:ring-violet-700">
+                                        Dupla
+                                    </span>
+                                {% endif %}
+                            </div>
                         </div>
                         
-                        
-                        <h2 class="text-lg font-bold {% if tarefa.status == 'Concluída' %}line-through text-slate-400{% else %}text-slate-900{% endif %}">
+                        <h2 class="text-lg font-bold {% if tarefa.status == 'Concluída' %}line-through text-slate-400{% else %}text-emerald-950{% endif %}">
                             {{ tarefa.titulo }}
                         </h2>
 
-                        
                         {% if tarefa.descricao %}
                             <p class="text-sm {% if tarefa.status == 'Concluída' %}line-through text-slate-400{% else %}text-slate-600{% endif %}">
                                 {{ tarefa.descricao }}
+                            </p>
+                        {% endif %}
+
+                        {% if tarefa.estudante_responsavel_2 %}
+                            <p class="text-xs text-slate-400 dark:text-slate-500">
+                                <i class="fa-solid fa-user-group mr-1"></i>
+                                Responsáveis: {{ tarefa.responsaveis|join:", " }}
                             </p>
                         {% endif %}
 
@@ -132,129 +214,124 @@
                                 <i class="fa-regular fa-clock mr-1.5"></i> Prazo: {{ tarefa.data_prazo|date:"d/m/Y" }}
                             </span>
                             
-                           
-                        {% if tarefa.status == 'Concluída' %}
-                      
-                            <a href="{% url 'concluir_tarefa' tarefa.id %}" class="text-emerald-700 bg-emerald-100 text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check"></i>
-                                <span>Concluída</span>
-                            </a>
-                        {% else %}
-    
-                            <a href="{% url 'concluir_tarefa' tarefa.id %}" class="text-emerald-700 bg-green-300 text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
-                                <i class="fa-solid fa-check"></i>
-                                <span>Marcar como Concluída</span>
-                            </a>
-                        {% endif %}
+                            {% if tarefa.status == 'Concluída' %}
+                                <span class="emerald-700 bg-emerald-100 text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>Concluída</span>
+                                </span>
+                            {% else %}
+                                {% comment %}
+                                    Form GET porque a rota concluir_tarefa já é um
+                                    GET (link). O submit() no modal reproduz
+                                    exatamente a navegação do antigo <a>, sem
+                                    precisar mexer na view.
+                                {% endcomment %}
+                                <form id="form-tarefa-{{ tarefa.id }}" action="{% url 'concluir_tarefa' tarefa.id %}" method="GET" class="inline">
+                                    <button type="button"
+                                        onclick="abrirModalEstudante('form-tarefa-{{ tarefa.id }}')"
+                                        class="bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full px-2 py-1 font-medium px-3 py-1 rounded-full text-xs font-bold hover:bg-emerald-200 transition">
+                                        <i class="fa-solid fa-check mr-1"></i> {% if tarefa.aberta %}Assumir e concluir{% else %}Concluir{% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+
                         </div>
                     </div>
                 {% empty %}
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center text-slate-400">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200/70 text-center text-slate-400 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-500 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                         Nenhuma tarefa encontrada.
                     </div>
                 {% endfor %}
             </div>
             
+            <!-- Cards de baixo-->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-              
-                <div class="bg-blue-600 text-white p-6 rounded-2xl flex flex-col justify-between shadow-sm">
-                    <div>
-                        <div class="flex items-center space-x-2 text-blue-100 text-sm font-semibold">
-                            <i class="fa-solid fa-fire"></i>
-                            <span>Métrica Principal</span>
-                        </div>
-                        <div class="mt-4">
-                            <span class="text-5xl font-black">04</span>
-                            <p class="text-sm font-medium text-blue-100 mt-1">unidades / período</p>
-                        </div>
+
+                <!--    Card de streak  -->
+               {% with streak_atual=estudante.quarto.streak_dias|default:0 %}
+               {% comment %}
+                   Paleta SUAP: streak baixo fica no verde institucional escuro;
+                   com 3+ vira um gradiente verde institucional -> menta.
+               {% endcomment %}
+               <div class="{% if streak_atual >= 3 %}bg-gradient-to-br from-[#00c896] to-[#0b4a42]{% else %}bg-[#0b4a42]{% endif %} text-white p-6 rounded-3xl flex flex-col justify-between shadow-md transition-all duration-300">
+                <div>
+                    <div class="flex items-center space-x-2 text-emerald-100 text-sm font-semibold">
+                        <i class="fa-solid fa-fire {% if streak_atual >= 3 %}text-[#00e6a5] animate-bounce{% endif %}"></i>
+                        <span>Streak de Limpeza</span>
+                    </div>
+                    <div class="mt-4 flex items-baseline space-x-2">
+                        <span class="text-5xl font-black">
+                            {{ streak_atual|stringformat:"02d" }}
+                        </span>
+                        <span class="text-xl">
+                            {% if streak_atual >= 3 %}🔥{% else %}❄️{% endif %}
+                        </span>
+                    </div>
+                    <p class="text-sm font-medium text-emerald-100 mt-1">
+                        {% if streak_atual >= 3 %}
+                            Fogueira acesa! {{ streak_atual }} vistorias seguidas sem falhas.
+                        {% else %}
+                            Mantenha 3 vistorias consecutivas para acender a fogueira!
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+                    {% comment %}
+                        Calendário dinâmico da semana atual (segunda -> domingo).
+                        O status vem do histórico real de vistorias do quarto,
+                        montado em `calendario_semana()` na view.
+                    {% endcomment %}
+                    <div class="grid grid-cols-7 gap-2 text-center mt-6" data-calendario>
+                        {% for dia in dias_semana %}
+                            <div>
+                                <span class="text-[10px] uppercase font-semibold opacity-80">{{ dia.rotulo }}</span>
+
+                                <div class="w-7 h-7 mx-auto mt-1 rounded-full flex items-center justify-center text-xs font-bold {% if dia.status == 'aprovado' %}bg-emerald-100 text-emerald-800 border border-emerald-300 {% elif dia.status == 'reprovado' %}bg-rose-100 text-rose-800 border border-rose-300 {% else %}bg-slate-100 text-slate-400 border border-slate-200{% endif %} {% if dia.dia_atual %}ring-2 ring-emerald-500{% endif %} dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
+                                    data-dia="{{ dia.rotulo }}"
+                                    data-status="{{ dia.status }}"
+                                    {% if dia.dia_atual %}aria-current="date"{% endif %}
+                                    title="{{ dia.data|date:'d/m/Y' }}: {{ dia.status|capfirst }}{% if dia.vistoria %} ({{ dia.vistoria.nota }}/10){% endif %}">
+
+                                    {% if dia.status == 'aprovado' %}
+                                        <i class="fa-solid fa-check"></i>
+                                    {% elif dia.status == 'reprovado' %}
+                                        <i class="fa-solid fa-xmark"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-minus text-[10px]"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
 
-                    <div class="grid grid-cols-7 gap-2 text-center mt-6">
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Seg</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Ter</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Qua</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Qui</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-check"></i></div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Sex</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-blue-500 text-blue-200 flex items-center justify-center text-xs font-bold">-</div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Sáb</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-blue-500 text-blue-200 flex items-center justify-center text-xs font-bold">-</div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-semibold text-blue-200">Dom</span>
-                            <div class="w-7 h-7 mx-auto mt-1 rounded-full bg-blue-500 text-blue-200 flex items-center justify-center text-xs font-bold">-</div>
-                        </div>
+                    {% comment %}Legenda: sem ela a banca não sabe o que é verde/vermelho.{% endcomment %}
+                    <div class="flex items-center justify-center gap-4 mt-4 text-[10px] font-semibold opacity-80">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-100 border border-emerald-300"></span> Aprovado
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-100 border border-rose-300"></span> Reprovado
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-100 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-400"></span> Pendente
+                        </span>
                     </div>
                 </div>
+                {% endwith %}
 
-              
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                    <h3 class="font-bold text-slate-900 mb-4">Resumo do Período</h3>
+                
 
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-                                <span>Item Métrica 1</span>
-                                <span class="text-slate-800">0 / 0</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full w-[75%]"></div>
-                            </div>
-                        </div>
+                    
 
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-                                <span>Item Métrica 2</span>
-                                <span class="text-slate-800">0 / 0</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="bg-emerald-600 h-full w-[100%]"></div>
-                            </div>
-                        </div>
+                <!-- Acesso Rápido -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/70 shadow-sm md:col-span-2 dark:bg-slate-900 dark:border-slate-800 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <h3 class="font-bold text-emerald-950 mb-4 text-lg">Acesso rápido</h3>
 
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-                                <span>Item Métrica 3</span>
-                                <span class="text-slate-800">000 pts</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full w-[50%]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-2">
-                    <h3 class="font-bold text-slate-900 mb-4 text-lg">Acesso rápido</h3>
-    
                     <div class="flex flex-wrap gap-4">
-                        <a href="#" class="flex items-center justify-between space-x-2 px-5 py-3 bg-blue-50 text-blue-600 font-semibold rounded-xl text-sm border border-transparent hover:bg-blue-100 transition">
-                            <span>Reportar problema</span>
-                            <i class="fa-solid fa-chevron-right text-xs"></i>
-                        </a>
-
-                        <a href="#" class="flex items-center justify-between space-x-2 px-5 py-3 bg-emerald-50 text-emerald-600 font-semibold rounded-xl text-sm border border-transparent hover:bg-emerald-100 transition">
-                            <span>Ver histórico</span>
-                            <i class="fa-solid fa-chevron-right text-xs"></i>
-                        </a>
-
-                        <a href="#" class="flex items-center justify-between space-x-2 px-5 py-3 bg-slate-50 text-slate-600 font-semibold rounded-xl text-sm border border-slate-200 hover:bg-slate-100 transition">
-                            <span>Regulamento</span>
+                        <a href="{% url 'chamados' %}" class="flex items-center justify-between space-x-2 px-5 py-3 bg-emerald-50 text-emerald-800 font-semibold rounded-2xl text-sm hover:bg-emerald-100 transition">
+                            <span>Chamados de infraestrutura</span>
                             <i class="fa-solid fa-chevron-right text-xs"></i>
                         </a>
                     </div>
@@ -262,5 +339,54 @@
             </div>
         </main>
     </div>
-</body>
-</html>
+{% endblock content %}
+
+{% block scripts %}
+
+    <div id="modal-estudante" class="fixed inset-0 z-50 items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-5 dark:bg-slate-900 dark:border dark:border-slate-800">
+            <div class="flex items-start gap-4">
+                <div class="shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center bg-[#00e6a5] text-teal-950">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div class="min-w-0">
+                    <p id="modal-estudante-titulo" class="text-base font-bold text-emerald-950 leading-tight">Confirmar conclusão?</p>
+                    <p id="modal-estudante-texto" class="text-sm text-slate-500 mt-1 dark:text-slate-400">Você tem certeza que deseja marcar esta limpeza como concluída e enviar para vistoria?</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" onclick="fecharModalEstudante()" class="w-full py-3 text-slate-600 font-semibold border border-slate-200 bg-white hover:bg-slate-100/70 rounded-2xl transition dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700">
+                    Recusar
+                </button>
+
+                <button type="button" onclick="confirmarConclusaoEstudante()" class="w-full py-3 text-white font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-2xl transition shadow-sm">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var formularioPendente = '';
+
+        function abrirModalEstudante(formId) {
+            formularioPendente = formId;
+            var modal = document.getElementById('modal-estudante');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function fecharModalEstudante() {
+            var modal = document.getElementById('modal-estudante');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            formularioPendente = '';
+        }
+
+        function confirmarConclusaoEstudante() {
+            document.getElementById(formularioPendente).submit();
+        }
+    </script>
+
+{% endblock scripts %}

@@ -1,86 +1,112 @@
-{% load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--<script src="https://tailwindcss.com"></script>-->
+    <title>CleanOrder - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>CleanOrder</title>
-
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="min-h-screen bg-gray-100 flex items-center justify-center">
-    <main class="w-full max-w-md px-4">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-blue-600">
-                CleanOrder
-            </h1>
+<body class="min-h-screen bg-slate-100/70 flex items-center justify-center relative overflow-hidden font-sans text-slate-700 antialiased">
+    
 
-            <p class="text-gray-500 mt-2">
-                Limpeza e Organização de Alojamentos Escolares
-            </p>
-        </div>
-{% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-            <p class="text-red-500 text-sm text-center font-bold">{{ message }}</p>
-        {% endfor %}
-    </div>
-{% endif %}
-<form method="POST" action="{% url 'login' %}" class="bg-white p-6 rounded-lg shadow-md">
-    {% csrf_token %}
-    
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">CPF</label>
-        <input type="text" name="cpf" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" maxlength="11" placeholder="000.000.000-00" required>
-    </div>
-    
-    <div class="mb-6">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Senha</label>
-        <div class="relative">
-            <input type="password" name="password" id="id_password" class="w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Sua Senha" required>
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <main class="w-full max-w-md px-4 relative z-10">
+        
+
+        <div class="bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-[2rem] border border-slate-200/70 shadow-2xl shadow-slate-200/50">
             
-            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none">
-                <img id="eyeIcon" src="{% static 'img/view-eye-svgrepo-com.svg' %}" alt="Mostrar senha" class="w-5 h-5 opacity-60 hover:opacity-100"> 
-            </button>
+            <div class="flex flex-col items-center mb-8">
+                                            <!--         Verificar depois            -->
+    <!--logo tristeza-->
+    <!--<div class="flex flex-col items-center mb-8">         
+        <div class="bg-gradient-to-br from-[#0b4a42] to-[#127a68] text-white rounded-3xl shadow-md shadow-emerald-900/20 mb-4 p-4 flex items-center justify-center">   
+            <svg version="1.0" xmlns="http://w3.org" viewBox="0 0 707.000000 353.000000" preserveAspectRatio="xMidYMid meet" class="w-36 h-18">
+                <g transform="translate(0.000000,353.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+                    <path d="M2030 2714 c-39 -14 -59 -28 -53 -37 3 -6 1 -7 -5 -3 -16 10 -94 -42 -86 -57 4 -7 4 -9 -1 -5 -11 10 -67 -21 -60 -33 4 -5 2 -8 -3 -7 -11 4 -112 -61 -112 -72 0 -4 -9 -10 -21 -13 -12 -3 -18 -10 -14 -16 3 -7 0 -8 -9 -5 -9 3 -21 -5 -31 -20 -10 -14 -23 -26 -31 -26 -7 0 -18 -8 -23 -17 -6 -10 -11 -14 -11 -10 0 5 -29 -14 -65 -42 -35 -28 -68 -51 -72 -51 -5 0 -26 -17 -48 -38 -23 -20 -67 -55 -99 -77 -116 -79 -255 -185 -281 -215 -16 -18 -20 -36 -20 -95 0 -72 0 -73 40 -110 40 -36 41 -36 115 -33 l75 3 -4 -380 c-2 -257 1 -393 8 -421 14 -54 43 -90 92 -114 37 -19 61 -20 755 -20 l717 0 45 22 c26 14 56 39 71 62 l26 40 5 405 5 405 63 -3 c55 -2 68 1 98 24 42 32 64 73 64 120 0 41 -22 94 -48 119 -37 34 -90 76 -97 76 -4 0 -33 22 -64 48 -31 27 -69 57 -86 68 -16 10 -54 38 -83 61 -29 24 -56 43 -60 43 -4 0 -25 17 -47 38 -22 20 -52 44 -67 51 -16 8 -28 18 -28 22 0 4 -20 18 -45 30 -25 12 -43 25 -40 27 9 9 -17 32 -37 32 -10 0 -16 5 -13 10 3 6 3 10 -2 10 -9 0 -53 33 -87 65 -12 11 -25 20 -28 20 -3 0 -21 12 -39 28 -18 15 -39 25 -46 23 -7 -3 -13 -1 -13 5 0 6 -4 7 -10 4 -5 -3 -7 0 -4 9 6 16 -28 31 -61 27 -16 -1 -17 0 -5 8 12 8 11 10 -5 11 -11 0 -38 2 -60 5 -22 2 -47 2 -55 -1z m157 -125 c44 -41 105 -79 116 -72 6 3 7 1 4 -4 -4 -6 3 -18 16 -26 21 -14 43 -32 97 -77 61 -52 167 -131 190 -142 14 -7 36 -25 49 -40 13 -15 27 -28 32 -28 4 0 18 -9 31 -20 42 -35 183 -145 199 -155 46 -29 139 -110 144 -126 17 -52 -34 -88 -90 -65 -18 8 -43 24 -54 35 -25 25 -48 27 -73 4 -17 -15 -18 -43 -18 -464 0 -246 -3 -455 -6 -464 -13 -33 -80 -56 -157 -53 l-72 3 -3 217 -2 216 29 21 c63 45 94 144 72 228 -16 60 -83 130 -138 146 -38 11 -50 21 -69 58 -15 28 -24 60 -24 89 0 50 31 127 54 136 21 8 29 39 16 64 -11 20 -18 20 -438 20 -313 0 -436 -4 -462 -13 -50 -17 -104 -65 -125 -111 -17 -36 -25 -122 -13 -156 24 -73 77 -127 144 -149 44 -14 56 -30 69 -99 10 -49 -4 -127 -26 -151 -14 -15 -32 -21 -63 -21 -74 0 -75 -3 -78 -266 l-3 -229 -57 -3 c-80 -4 -130 11 -151 47 -15 26 -17 70 -17 462 -1 453 -3 479 -44 487 -10 2 -28 -5 -39 -16 -12 -11 -37 -27 -56 -37 -90 -45 -140 56 -54 112 15 10 43 33 63 50 19 18 41 33 48 33 6 0 12 5 12 10 0 6 5 10 10 10 5 0 19 8 29 18 11 9 31 25 45 35 15 10 24 23 20 28 -3 5 -1 8 4 7 11 -4 97 51 141 91 19 17 38 31 43 31 12 0 58 42 53 49 -2 4 6 8 17 8 12 1 35 16 52 32 18 17 37 31 44 31 7 0 12 4 12 9 0 5 20 22 45 38 24 15 42 33 40 40 -2 7 1 10 8 8 7 -3 23 5 37 16 14 11 18 17 10 13 -8 -4 -11 -3 -7 1 4 5 14 10 22 11 8 1 40 22 72 47 74 57 76 57 155 54 56 -2 72 -7 95 -28z m198 -611 c-26 -86 -27 -116 -7 -177 11 -33 17 -63 12 -66 -4 -2 -169 -4 -366 -2 l-359 2 -32 24 c-45 34 -69 98 -54 144 11 33 38 63 77 85 13 8 136 11 378 12 l358 0 -7 -22z m155 -350 c56 -32 75 -89 53 -154 -13 -39 -22 -49 -59 -65 -39 -18 -67 -19 -396 -17 -307 3 -353 5 -352 18 1 8 8 36 15 63 13 47 13 52 -18 160 -5 16 17 17 356 17 357 0 363 0 401 -22z m-42 -530 l-3 -203 -427 -3 -428 -2 0 205 0 205 430 0 430 0 -2 -202z"/>
+                    <path d="M2430 1556 c0 -3 9 -10 20 -16 11 -6 20 -8 20 -6 0 3 -9 10 -20 16 -11 6 -20 8 -20 6z"/>
+                    <path d="M2300 1540 c8 -5 20 -10 25 -10 6 0 3 5 -5 10 -8 5 -19 10 -25 10 -5 0 -3"/>
+                </g>
+            </svg>
+        </div>-->
+        <!--                                                                                         -->
+    <!--Logo funcional-->
+        <div class="flex flex-col items-center mb-6">        
+            <div class="bg-gradient-to-br from-[#0b4a42] to-[#127a68] text-white rounded-3xl shadow-md shadow-emerald-900/20 mb-3 p-2 flex items-center justify-center">
+                <img src="../static/img/logo_casa.svg" alt="Logo" class="w-12 h-12 object-contain">
+            </div>
+            <h1 class="text-2xl font-black text-emerald-950 tracking-tight">CleanOrder</h1>
+            <p class="text-slate-400 text-xs font-medium mt-1 text-center">Gestão Inteligente de Alojamentos</p>
         </div>
-    </div>
+
+            <!--Mensagens de Erro-->
+            {% if messages %}
+                <div class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl">
+                    {% for message in messages %}
+                        <p class="text-rose-600 text-sm text-center font-bold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ message }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- CPF -->
+                <div class="space-y-1.5">
+                    <label class="block text-slate-500 text-xs font-bold uppercase tracking-wider pl-1">CPF</label>
+                    <input type="text" name="cpf" class="w-full px-4 py-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30/50 focus:border-emerald-600 transition-all" maxlength="11" placeholder="000.000.000-00" required>
+                </div>
+                
+                <!-- Senha -->
+                <div class="space-y-1.5">
+                    <label class="block text-slate-500 text-xs font-bold uppercase tracking-wider pl-1">Senha</label>
+                    <div class="relative">
+                        <input type="password" name="password" id="id_password" class="w-full px-4 py-3.5 bg-slate-100/70 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30/50 focus:border-emerald-600 transition-all pr-12" placeholder="••••••••" required>
+                        
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-1 flex items-center justify-center w-10 text-slate-400 hover:text-emerald-700 focus:outline-none transition-colors">
+                            <img id="eyeIcon" src="{% static 'img/view-eye-svgrepo-com.svg' %}" alt="Mostrar senha" class="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity"> 
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-[#0b4a42] to-[#127a68] text-white font-bold py-4 px-4 rounded-2xl hover:shadow-lg hover:shadow-emerald-900/30 transform hover:-translate-y-0.5 transition-all duration-200 flex justify-center items-center gap-2 mt-4">
+                    <span>Acessar o Sistema</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+        </div>
+
+        <footer class="text-center text-slate-400 text-xs font-medium mt-8 tracking-wide">
+            © 2026 CleanOrder.
+        </footer>
+        
+    </main>
+
     
-    
-    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
-        Entrar
-    </button>
     <script>
-        // Executa apenas quando a página estiver totalmente carregada
         document.addEventListener('DOMContentLoaded', function () {
             const togglePassword = document.querySelector('#togglePassword');
             const passwordInput = document.querySelector('#id_password');
     
             if (togglePassword && passwordInput) {
                 togglePassword.addEventListener('click', function (e) {
-                    // Previne qualquer comportamento padrão do botão
                     e.preventDefault(); 
                     
-                    // Força a mudança do tipo do input
                     if (passwordInput.type === 'password') {
                         passwordInput.type = 'text';
-                        console.log("Senha visível");
                     } else {
                         passwordInput.type = 'password';
-                        console.log("Senha oculta");
                     }
                 });
-            } else {
-                console.log("Erro: Não encontrou o botão ou o input na página.");
             }
         });
     </script>
-    
-</form>
-
-    <footer class="text-center text-gray-400 text-sm mt-6">
-        © 2026 CleanOrder. Todos os direitos reservados.
-    </footer>
-
 </body>
 </html>

@@ -1,0 +1,80 @@
+{% comment %}
+    Pódio dos Alojamentos ("Quarto Ouro").
+
+    O contexto `podio` vem de gamificacao.podio(): até 3 quartos, já ordenados
+    e com medalha. Quartos sem nenhuma vistoria avaliada não entram — senão um
+    quarto vazio "ganharia" por falta de dados.
+
+    LAYOUT — `lg:col-span-12` é obrigatório aqui: painel_monitor.html envolve
+    o conteúdo num `grid lg:grid-cols-12`. Sem o span, esta section ocupa só
+    1 das 12 colunas e fica espremida à esquerda. Em gestao_monitor.html o
+    <main> é block flow (sem grid), então o span é inerte e não causa mal.
+
+    Paleta: slate/emerald do projeto, não zinc. Ver README do sprint.
+{% endcomment %}
+
+<section class="lg:col-span-12 w-full p-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/70 dark:border-slate-700 rounded-3xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+    <div class="flex items-center justify-between mb-5">
+        <div class="min-w-0">
+            <h3 class="text-lg font-bold text-emerald-950 dark:text-slate-100">Pódio dos Alojamentos</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Média das vistorias + sequência de aprovações</p>
+        </div>
+        <span class="shrink-0 px-2.5 py-1 bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 rounded-full text-[11px] font-semibold">
+            Top 3
+        </span>
+    </div>
+
+    {% if podio %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
+            {% for linha in podio %}
+                <div class="flex flex-col h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200 {% if linha.posicao == 1 %}ring-1 ring-inset ring-emerald-300 bg-emerald-50/50 dark:bg-slate-900{% endif %}">
+
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-3xl leading-none shrink-0"
+                            title="{{ linha.posicao }}º colocado · media {{ linha.media }}/10 · {{ linha.streak }} dia(s) de streak">{{ linha.medalha }}</span>
+                        {% if linha.rotulo %}
+                            <span title="{{ linha.quarto }} ficou em {{ linha.posicao }}º lugar no ranking do periodo"
+                                class="px-2 py-0.5 bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 rounded-full text-[10px] font-bold uppercase truncate">
+                                {{ linha.rotulo }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <p class="mt-3 font-black text-emerald-950 dark:text-slate-100 truncate">{{ linha.quarto }}</p>
+
+                    <div class="flex items-baseline gap-1.5 mt-1">
+                        <span class="text-2xl font-black text-emerald-950 dark:text-slate-100">{{ linha.media }}</span>
+                        <span class="text-xs text-slate-400">/ 10</span>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-700 space-y-1">
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between gap-2">
+                            <span class="flex items-center">
+                                <i class="fa-solid fa-fire mr-1"></i>Streak
+                            </span>
+                            <span class="font-bold text-emerald-950 dark:text-slate-100">{{ linha.streak }} dia(s)</span>
+                        </p>
+
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between gap-2">
+                            <span class="flex items-center">
+                                <i class="fa-solid fa-clipboard-check mr-1"></i>Vistorias
+                            </span>
+                            <span class="font-bold text-emerald-950 dark:text-slate-100">{{ linha.total_vistorias }}</span>
+                        </p>
+
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between gap-2">
+                            <span class="flex items-center">
+                                <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>Sem falhas
+                            </span>
+                            <span class="font-bold text-emerald-950 dark:text-slate-100">
+                                {{ linha.aprovacoes }}{% if linha.reprovacoes %} <span class="text-rose-500 font-normal">/ {{ linha.reprovacoes }} reprov.</span>{% endif %}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        {% include '_empty_state.html' with mensagem='Nenhum quarto disputa o pódio ainda' sub='Assim que houver vistorias avaliadas o ranking aparece aqui' %}
+    {% endif %}
+</section>

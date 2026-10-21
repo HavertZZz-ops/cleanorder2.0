@@ -1,0 +1,38 @@
+
+<style>
+    /* ---------- 1. Tipografia ---------- */
+    body {
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system,
+                     'Segoe UI', Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ---------- 2. Toasts ---------- */
+    @keyframes toastEntrada {
+        from { opacity: 0; transform: translateX(16px) scale(.96); }
+        to   { opacity: 1; transform: translateX(0)    scale(1); }
+    }
+    @keyframes toastSaida {
+        from { opacity: 1; transform: translateX(0)    scale(1); }
+        to   { opacity: 0; transform: translateX(16px) scale(.96); }
+    }
+    @keyframes modalEntrada {
+        from { opacity: 0; transform: translateY(8px) scale(.98); }
+        to   { opacity: 1; transform: translateY(0)  scale(1); }
+    }
+
+    .toast-enter { animation: toastEntrada .28s cubic-bezier(.16,1,.3,1) both; }
+    .toast-saindo { animation: toastSaida .25s ease-in both; }
+
+    /* Card interno do modal entra com um leve "sobe" */
+    .modal-card-entra { animation: modalEntrada .22s cubic-bezier(.16,1,.3,1) both; }
+
+    /* ---------- 3. Respeita quem pediu menos movimento ---------- */
+    @media (prefers-reduced-motion: reduce) {
+        .toast-enter, .toast-saindo, .modal-card-entra {
+            animation: none !important;
+        }
+        * { transition-duration: .01ms !important; }
+    }
+</style>

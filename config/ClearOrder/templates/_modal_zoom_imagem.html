@@ -1,0 +1,59 @@
+{% comment %}
+    Zoom da foto do chamado. Abre no clique da miniatura, fecha por X,
+    clique fora ou ESC. Escopo local (id unico) para nao colidir com os
+    outros modais da pagina.
+{% endcomment %}
+
+<div id="modal-zoom" onclick="fecharZoom(event)"
+    class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] hidden items-center justify-center p-6">
+
+    <div class="max-w-3xl w-full flex flex-col items-center gap-3" onclick="event.stopPropagation()">
+        <img id="zoom-img" src="" alt="Foto do chamado em tamanho ampliado"
+            class="max-h-[80vh] w-auto object-contain rounded-2xl border border-slate-700 shadow-2xl">
+
+        <div class="flex items-center gap-2">
+            <a id="zoom-abrir" href="#" target="_blank" rel="noopener"
+                class="px-4 py-2 bg-[#00e6a5] text-teal-950 text-xs font-bold rounded-full hover:bg-[#00d298] active:scale-[0.97] transition-all duration-150">
+                <i class="fa-solid fa-up-right-from-square mr-1"></i> Abrir em outra aba
+            </a>
+            <button type="button" onclick="fecharZoom()"
+                class="px-4 py-2 bg-white/10 text-emerald-100 text-xs font-bold rounded-full hover:bg-white/20 transition">
+                <i class="fa-solid fa-xmark mr-1"></i> Fechar
+            </button>
+        </div>
+    </div>
+
+    <button type="button" onclick="fecharZoom()" aria-label="Fechar"
+        class="absolute top-5 right-5 w-10 h-10 rounded-xl bg-white/10 text-emerald-100 hover:bg-white/20 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
+
+<script>
+    function ampliarImagem(url) {
+        var modal = document.getElementById('modal-zoom');
+        if (!modal) { return; }
+        document.getElementById('zoom-img').src = url;
+        document.getElementById('zoom-abrir').href = url;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function fecharZoom(event) {
+        if (event && event.target !== event.currentTarget) { return; }
+
+        var modal = document.getElementById('modal-zoom');
+        if (!modal) { return; }
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') { return; }
+        var modal = document.getElementById('modal-zoom');
+        if (modal && !modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    });
+</script>

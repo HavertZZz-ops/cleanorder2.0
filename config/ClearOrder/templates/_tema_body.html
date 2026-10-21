@@ -1,0 +1,47 @@
+{% comment %}
+    Configuração e funções de tema — vão DEPOIS do <script src="tailwindcss">.
+
+    `tailwind.config` precisa do global `tailwind` já carregado, por isso este
+    include é separado do anti-FOUC (_tema_antifouc.html), que vai antes.
+{% endcomment %}
+<script>
+    // 'class' = o dark mode só liga com a classe 'dark' no <html>,
+    // e não com a preferência do sistema.
+    // fontFamily.sans = Plus Jakarta Sans, aplicada globalmente em body.
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                }
+            }
+        }
+    };
+</script>
+
+<script>
+    function aplicarTema(tema) {
+        var escuro = tema === 'dark';
+        document.documentElement.classList.toggle('dark', escuro);
+        try { localStorage.setItem('cleanorder-theme', escuro ? 'dark' : 'light'); } catch (e) {}
+        document.querySelectorAll('[data-tema-btn]').forEach(function (b) {
+            var ativo = b.dataset.temaBtn === (escuro ? 'dark' : 'light');
+            b.classList.toggle('bg-[#00e6a5]', ativo);
+            b.classList.toggle('text-teal-950', ativo);
+            b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+        });
+    }
+
+    function temaAtual() {
+        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        aplicarTema(temaAtual());
+    });
+
+    window.addEventListener('storage', function (e) {
+        if (e.key === 'cleanorder-theme' && e.newValue) { aplicarTema(e.newValue); }
+    });
+</script>

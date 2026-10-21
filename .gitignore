@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+.Python
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Django
+*.sqlite3
+db.sqlite3
+staticfiles/
+mediafiles/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+pip-log.txt
+
+# IDEs / editors
+.vscode/
+.idea/
+*.swp
